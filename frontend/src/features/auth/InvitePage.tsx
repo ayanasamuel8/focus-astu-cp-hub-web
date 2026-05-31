@@ -46,10 +46,16 @@ export default function InvitePage() {
     if (password.length < 8) return;
     setLoading(true);
     setError('');
-    const { error: err } = await supabase.auth.signUp({ email: inviteEmail, password });
+
+    // If Supabase already set a session from the invite hash, the user exists
+    // in auth — just set their password. Otherwise register fresh.
+    const { data: { session } } = await supabase.auth.getSession();
+    const { error: err } = session
+      ? await supabase.auth.updateUser({ password })
+      : await supabase.auth.signUp({ email: inviteEmail, password });
+
     setLoading(false);
     if (err) { setError(err.message); return; }
-    // Mark token used server-side happens automatically on first auth callback
     navigate('/complete-profile');
   }
 

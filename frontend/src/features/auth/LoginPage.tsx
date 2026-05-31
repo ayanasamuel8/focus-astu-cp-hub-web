@@ -80,7 +80,22 @@ export default function LoginPage() {
       <Field label="Email" value={email} onChange={setEmail} placeholder="you@astu.edu.et" icon="mail" type="email" />
 
       {isPassword && (
-        <Field label="Password" value={password} onChange={setPassword} placeholder="••••••••" icon="lock" type="password" />
+        <Field
+          label="Password"
+          value={password}
+          onChange={setPassword}
+          placeholder="••••••••"
+          icon="lock"
+          type="password"
+          right={
+            <span
+              style={{ fontFamily: T.fB, fontSize: 12, color: T.accentText, cursor: 'pointer', fontWeight: 500 }}
+              onClick={() => navigate('/forgot-password')}
+            >
+              Forgot password?
+            </span>
+          }
+        />
       )}
 
       {state === 'error' && (

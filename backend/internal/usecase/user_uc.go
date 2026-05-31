@@ -1,11 +1,15 @@
 package usecase
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
 	"time"
 
 	"focus-astu-hub/internal/domain"
@@ -174,11 +178,22 @@ func (uc *AdminUserUseCase) SetBan(ctx context.Context, targetUserID string, ban
 // ── Invitation use case ───────────────────────────────────────────────────────
 
 type InvitationUseCase struct {
-	invitations domain.InvitationRepository
+	invitations            domain.InvitationRepository
+	supabaseURL            string
+	supabaseServiceRoleKey string
+	siteURL                string
 }
 
-func NewInvitationUseCase(invitations domain.InvitationRepository) *InvitationUseCase {
-	return &InvitationUseCase{invitations: invitations}
+func NewInvitationUseCase(
+	invitations domain.InvitationRepository,
+	supabaseURL, supabaseServiceRoleKey, siteURL string,
+) *InvitationUseCase {
+	return &InvitationUseCase{
+		invitations:            invitations,
+		supabaseURL:            supabaseURL,
+		supabaseServiceRoleKey: supabaseServiceRoleKey,
+		siteURL:                siteURL,
+	}
 }
 
 func (uc *InvitationUseCase) Create(ctx context.Context, email, createdBy string) (*domain.Invitation, error) {
@@ -194,7 +209,47 @@ func (uc *InvitationUseCase) Create(ctx context.Context, email, createdBy string
 		CreatedBy: &createdBy,
 		ExpiresAt: time.Now().Add(72 * time.Hour),
 	}
-	return uc.invitations.Create(ctx, inv)
+	inv, err := uc.invitations.Create(ctx, inv)
+	if err != nil {
+		return nil, err
+	}
+
+	// Best-effort: send invitation email via Supabase admin API.
+	if uc.supabaseURL != "" && uc.supabaseServiceRoleKey != "" {
+		if err := uc.sendSupabaseInvite(ctx, email, token); err != nil {
+			log.Printf("supabase invite email for %s: %v", email, err)
+		}
+	}
+
+	return inv, nil
+}
+
+func (uc *InvitationUseCase) sendSupabaseInvite(ctx context.Context, email, token string) error {
+	redirectTo := uc.siteURL + "/invite?token=" + token
+	body, _ := json.Marshal(map[string]any{
+		"email":       email,
+		"redirect_to": redirectTo,
+	})
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost,
+		uc.supabaseURL+"/auth/v1/admin/invite", bytes.NewReader(body))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("apikey", uc.supabaseServiceRoleKey)
+	req.Header.Set("Authorization", "Bearer "+uc.supabaseServiceRoleKey)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 300 {
+		return fmt.Errorf("supabase invite returned %d", resp.StatusCode)
+	}
+	return nil
 }
 
 func (uc *InvitationUseCase) Validate(ctx context.Context, token string) (*domain.Invitation, error) {

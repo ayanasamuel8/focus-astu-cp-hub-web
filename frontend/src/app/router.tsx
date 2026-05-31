@@ -10,6 +10,8 @@ import LandingPage from '../features/landing/LandingPage';
 import LoginPage from '../features/auth/LoginPage';
 import SignupPage from '../features/auth/SignupPage';
 import InvitePage from '../features/auth/InvitePage';
+import ForgotPasswordPage from '../features/auth/ForgotPasswordPage';
+import ResetPasswordPage from '../features/auth/ResetPasswordPage';
 import CompleteProfilePage from '../features/auth/CompleteProfilePage';
 import DashboardPage from '../features/dashboard/DashboardPage';
 import ProblemsPage from '../features/problems/ProblemsPage';
@@ -106,9 +108,21 @@ const router = createBrowserRouter([
   {
     element: <LandingErrorBoundary><PublicOnlyRoute /></LandingErrorBoundary>,
     children: [
-      { path: '/login',   element: <LoginPage /> },
-      { path: '/signup',  element: <SignupPage /> },
-      { path: '/invite',  element: <InvitePage /> },
+      { path: '/login',            element: <LoginPage /> },
+      { path: '/signup',           element: <SignupPage /> },
+      { path: '/forgot-password',  element: <ForgotPasswordPage /> },
+    ],
+  },
+
+  // ── Auth flows that must be reachable even with an active session ─────────
+  // /invite: Supabase sets a session from the hash before the page mounts,
+  //   so it cannot live inside PublicOnlyRoute (would redirect to /dashboard).
+  // /reset-password: same — Supabase injects the recovery session via hash.
+  {
+    element: <LandingErrorBoundary><Outlet /></LandingErrorBoundary>,
+    children: [
+      { path: '/invite',         element: <InvitePage /> },
+      { path: '/reset-password', element: <ResetPasswordPage /> },
     ],
   },
 
