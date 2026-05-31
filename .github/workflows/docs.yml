@@ -31,7 +31,7 @@ jobs:
           cache: pip
 
       - name: Install MkDocs + plugins
-        run: pip install mkdocs-material mkdocs-glightbox
+        run: pip install -r docs/requirements.txt
 
       - name: Build docs (strict)
         run: mkdocs build --strict
