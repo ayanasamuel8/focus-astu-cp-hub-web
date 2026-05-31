@@ -31,21 +31,10 @@ jobs:
           cache: pip
 
       - name: Install MkDocs + plugins
-        run: |
-          pip install \
-            mkdocs-material \
-            mkdocs-glightbox
+        run: pip install mkdocs-material mkdocs-glightbox
 
       - name: Build docs (strict)
         run: mkdocs build --strict
-
-      - name: Create GitHub deployment
-        uses: bobheadxi/deployments@v1
-        id: create-deployment
-        with:
-          step: start
-          token: ${{ secrets.GITHUB_TOKEN }}
-          env: github-pages
 
       - name: Deploy to GitHub Pages
         run: |
@@ -53,20 +42,8 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           mkdocs gh-deploy --force --message "docs: deploy from ${{ github.sha }}"
 
-      - name: Update GitHub deployment status
-        uses: bobheadxi/deployments@v1
-        if: always()
-        with:
-          step: finish
-          token: ${{ secrets.GITHUB_TOKEN }}
-          status: ${{ job.status }}
-          env: ${{ steps.create-deployment.outputs.env }}
-          deployment_id: ${{ steps.create-deployment.outputs.deployment_id }}
-          env_url: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
-
       - name: Summary
         if: success()
         run: |
-          echo "### Documentation deployed successfully" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**URL:** https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" >> $GITHUB_STEP_SUMMARY
+          echo "### Docs deployed" >> $GITHUB_STEP_SUMMARY
+          echo "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" >> $GITHUB_STEP_SUMMARY
