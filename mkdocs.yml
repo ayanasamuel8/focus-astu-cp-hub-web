@@ -1,8 +1,8 @@
 site_name: Focus ASTU CP Hub
 site_description: Documentation for the Focus ASTU Competitive Programming Hub
-site_url: https://focusastu.github.io/focus-astu-cp-hub-web
-repo_url: https://github.com/focusastu/focus-astu-cp-hub-web
-repo_name: focusastu/focus-astu-cp-hub-web
+site_url: https://ayanasamuel8.github.io/focus-astu-cp-hub-web
+repo_url: https://github.com/ayanasamuel8/focus-astu-cp-hub-web
+repo_name: ayanasamuel8/focus-astu-cp-hub-web
 edit_uri: edit/main/docs/
 
 theme:
