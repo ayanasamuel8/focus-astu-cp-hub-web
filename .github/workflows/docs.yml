@@ -7,17 +7,23 @@ on:
     paths:
       - "docs/**"
       - "mkdocs.yml"
+      - "docs/requirements.txt"
       - ".github/workflows/docs.yml"
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
-  deploy-docs:
-    name: Build & Deploy MkDocs
+  build:
+    name: Build MkDocs site
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,20 +36,30 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      - name: Install MkDocs + plugins
+      - name: Install dependencies
         run: pip install -r docs/requirements.txt
 
-      - name: Build docs (strict)
+      - name: Build site
         run: mkdocs build --strict
 
-      - name: Deploy to GitHub Pages
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          mkdocs gh-deploy --force --message "docs: deploy from ${{ github.sha }}"
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deploy
+        uses: actions/deploy-pages@v4
 
       - name: Summary
-        if: success()
         run: |
           echo "### Docs deployed" >> $GITHUB_STEP_SUMMARY
-          echo "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.deploy.outputs.page_url }}" >> $GITHUB_STEP_SUMMARY
