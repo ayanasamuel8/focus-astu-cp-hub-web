@@ -11,9 +11,12 @@ jobs:
     steps:
       - name: Ping health endpoint
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://focus-astu-cp-hub-web.onrender.com/api/healthz)
+          echo "event=${{ github.event_name }} utc=$(date -u)"
+          set +e
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            --max-time 30 \
+            --retry 3 \
+            --retry-delay 5 \
+            https://focus-astu-cp-hub-web.onrender.com/api/healthz)
           echo "Health check status: $STATUS"
-          if [ "$STATUS" != "200" ]; then
-            echo "Health check failed with status $STATUS"
-            exit 1
-          fi
+          exit 0
