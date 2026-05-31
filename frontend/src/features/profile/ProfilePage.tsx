@@ -40,6 +40,8 @@ function HandleChip({ p, handle }: { p: Platform; handle: string }) {
     LEETCODE:   `https://leetcode.com/${handle}`,
     CODEFORCES: `https://codeforces.com/profile/${handle}`,
     ATCODER:    `https://atcoder.jp/users/${handle}`,
+    HACKERRANK: `https://www.hackerrank.com/profile/${handle}`,
+    GFG:        `https://auth.geeksforgeeks.org/user/${handle}`,
     OTHER:      '#',
   };
   return (
