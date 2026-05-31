@@ -1,21 +1,21 @@
-name: Package Extension
+name: Package & Publish Extension
 
 on:
   release:
     types: [published]
   workflow_dispatch:
     inputs:
-      version:
-        description: Version tag (e.g. v1.0.0)
-        required: false
-        default: manual
+      publish:
+        description: Also publish to Chrome Web Store?
+        type: boolean
+        default: false
 
 permissions:
   contents: write
 
 jobs:
-  package:
-    name: Zip & attach to release
+  package-and-publish:
+    name: Zip, attach to release, and publish to Chrome Web Store
     runs-on: ubuntu-latest
 
     steps:
@@ -42,3 +42,20 @@ jobs:
           name: focus-astu-cp-hub-extension
           path: focus-astu-cp-hub-extension.zip
           retention-days: 7
+
+      # ── Chrome Web Store publish ──────────────────────────────────────────
+      # Runs on every release, OR on manual dispatch with publish=true.
+      # Requires 4 repository secrets (see docs/extension/installation.md):
+      #   CHROME_EXTENSION_ID, CHROME_CLIENT_ID,
+      #   CHROME_CLIENT_SECRET, CHROME_REFRESH_TOKEN
+      - name: Publish to Chrome Web Store
+        if: |
+          (github.event_name == 'release') ||
+          (github.event_name == 'workflow_dispatch' && inputs.publish == true)
+        uses: mnao305/chrome-extension-upload@v5.0.0
+        with:
+          file-path: focus-astu-cp-hub-extension.zip
+          extension-id: ${{ secrets.CHROME_EXTENSION_ID }}
+          client-id: ${{ secrets.CHROME_CLIENT_ID }}
+          client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
+          refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
