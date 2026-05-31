@@ -15,6 +15,14 @@ type SquadRepo struct{ db *pgxpool.Pool }
 
 func NewSquadRepo(db *pgxpool.Pool) *SquadRepo { return &SquadRepo{db: db} }
 
+func (r *SquadRepo) Create(ctx context.Context, s *domain.Squad) (*domain.Squad, error) {
+	err := r.db.QueryRow(ctx,
+		`INSERT INTO squads (name) VALUES ($1) RETURNING id, name, created_at`,
+		s.Name,
+	).Scan(&s.ID, &s.Name, &s.CreatedAt)
+	return s, err
+}
+
 func (r *SquadRepo) GetByID(ctx context.Context, id string) (*domain.Squad, error) {
 	s := &domain.Squad{}
 	err := r.db.QueryRow(ctx, `SELECT id, name, created_at FROM squads WHERE id=$1`, id).

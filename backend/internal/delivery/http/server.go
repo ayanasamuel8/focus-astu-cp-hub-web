@@ -97,6 +97,8 @@ func NewServer(
 	admin.PUT("/users/:userID/role", adminH.SetRole)
 	admin.PUT("/users/:userID/squad", adminH.SetSquad)
 	admin.PUT("/users/:userID/ban", adminH.SetBan)
+	admin.GET("/squads", adminH.ListSquads)
+	admin.POST("/squads", adminH.CreateSquad)
 	admin.GET("/invitations", adminH.ListInvitations)
 	admin.POST("/invitations", adminH.CreateInvitation)
 	admin.POST("/announcements", annH.PostGlobal)

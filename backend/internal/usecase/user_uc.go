@@ -139,8 +139,12 @@ func NewAdminUserUseCase(users domain.UserRepository, squads domain.SquadReposit
 	return &AdminUserUseCase{users: users, squads: squads}
 }
 
-func (uc *AdminUserUseCase) SetRole(ctx context.Context, callerRole domain.Role, targetUserID string, newRole domain.Role) error {
-	// ADMIN can assign up to SQUAD_LEAD; SUPER_ADMIN can assign up to ADMIN
+func (uc *AdminUserUseCase) SetRole(ctx context.Context, callerID string, callerRole domain.Role, targetUserID string, newRole domain.Role) error {
+	if callerID == targetUserID {
+		return fmt.Errorf("cannot change your own role")
+	}
+
+	// Resolve what the caller can assign (one tier below themselves)
 	maxAssignable := domain.RoleSquadLead
 	if callerRole == domain.RoleSuperAdmin {
 		maxAssignable = domain.RoleAdmin
@@ -149,21 +153,34 @@ func (uc *AdminUserUseCase) SetRole(ctx context.Context, callerRole domain.Role,
 		return fmt.Errorf("cannot assign role %s with role %s", newRole, callerRole)
 	}
 
+	target, err := uc.users.GetByID(ctx, targetUserID)
+	if err != nil {
+		return err
+	}
+	// Caller must outrank the target's current role
+	if target.Role.AtLeast(nextRole(maxAssignable)) {
+		return fmt.Errorf("cannot modify a user with role %s", target.Role)
+	}
+
+	target.Role = newRole
+	return uc.users.Update(ctx, target)
+}
+
+func (uc *AdminUserUseCase) SetSquad(ctx context.Context, targetUserID string, squadID *string) error {
 	u, err := uc.users.GetByID(ctx, targetUserID)
 	if err != nil {
 		return err
 	}
-	u.Role = newRole
+	u.SquadID = squadID
 	return uc.users.Update(ctx, u)
 }
 
-func (uc *AdminUserUseCase) SetSquad(ctx context.Context, targetUserID, squadID string) error {
-	u, err := uc.users.GetByID(ctx, targetUserID)
-	if err != nil {
-		return err
-	}
-	u.SquadID = &squadID
-	return uc.users.Update(ctx, u)
+func (uc *AdminUserUseCase) CreateSquad(ctx context.Context, name string) (*domain.Squad, error) {
+	return uc.squads.Create(ctx, &domain.Squad{Name: name})
+}
+
+func (uc *AdminUserUseCase) ListSquads(ctx context.Context) ([]*domain.Squad, error) {
+	return uc.squads.ListAll(ctx)
 }
 
 func (uc *AdminUserUseCase) SetBan(ctx context.Context, targetUserID string, banned bool) error {

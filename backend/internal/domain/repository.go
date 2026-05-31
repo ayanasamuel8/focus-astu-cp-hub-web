@@ -44,6 +44,7 @@ type ContestRepository interface {
 
 type SquadRepository interface {
 	GetByID(ctx context.Context, id string) (*Squad, error)
+	Create(ctx context.Context, s *Squad) (*Squad, error)
 	ListAll(ctx context.Context) ([]*Squad, error)
 	CreateTrack(ctx context.Context, t *SquadTrack) (*SquadTrack, error)
 	GetTracks(ctx context.Context, squadID string) ([]*SquadTrack, error)

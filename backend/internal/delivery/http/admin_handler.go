@@ -3,6 +3,7 @@ package http
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"focus-astu-hub/internal/domain"
 	"focus-astu-hub/internal/usecase"
@@ -43,15 +44,16 @@ func (h *AdminHandler) ListUsers(c echo.Context) error {
 }
 
 func (h *AdminHandler) SetRole(c echo.Context) error {
+	callerID   := UserIDFromContext(c)
 	callerRole := RoleFromContext(c)
-	targetID := c.Param("userID")
+	targetID   := c.Param("userID")
 	var body struct {
 		Role string `json:"role"`
 	}
 	if err := c.Bind(&body); err != nil || body.Role == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "role is required")
 	}
-	if err := h.adminUsers.SetRole(c.Request().Context(), callerRole, targetID, domain.Role(body.Role)); err != nil {
+	if err := h.adminUsers.SetRole(c.Request().Context(), callerID, callerRole, targetID, domain.Role(body.Role)); err != nil {
 		return echo.NewHTTPError(http.StatusForbidden, err.Error())
 	}
 	return c.JSON(http.StatusOK, map[string]string{"status": "updated"})
@@ -60,10 +62,10 @@ func (h *AdminHandler) SetRole(c echo.Context) error {
 func (h *AdminHandler) SetSquad(c echo.Context) error {
 	targetID := c.Param("userID")
 	var body struct {
-		SquadID string `json:"squad_id"`
+		SquadID *string `json:"squad_id"`
 	}
-	if err := c.Bind(&body); err != nil || body.SquadID == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "squad_id is required")
+	if err := c.Bind(&body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid body")
 	}
 	if err := h.adminUsers.SetSquad(c.Request().Context(), targetID, body.SquadID); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
@@ -87,6 +89,28 @@ func (h *AdminHandler) SetBan(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return c.JSON(http.StatusOK, map[string]string{"status": "updated"})
+}
+
+func (h *AdminHandler) CreateSquad(c echo.Context) error {
+	var body struct {
+		Name string `json:"name"`
+	}
+	if err := c.Bind(&body); err != nil || strings.TrimSpace(body.Name) == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "name is required")
+	}
+	squad, err := h.adminUsers.CreateSquad(c.Request().Context(), strings.TrimSpace(body.Name))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusCreated, squad)
+}
+
+func (h *AdminHandler) ListSquads(c echo.Context) error {
+	list, err := h.adminUsers.ListSquads(c.Request().Context())
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to fetch squads")
+	}
+	return c.JSON(http.StatusOK, list)
 }
 
 func (h *AdminHandler) CreateInvitation(c echo.Context) error {

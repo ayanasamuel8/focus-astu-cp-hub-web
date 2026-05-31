@@ -62,7 +62,7 @@ export function useUpdateBan() {
 }
 
 // ── Squads list (for squad assignment dropdown) ───────────────────────────
-export interface Squad { id: string; name: string }
+export interface Squad { id: string; name: string; created_at?: string }
 
 export function useSquads() {
   return useQuery({
@@ -73,6 +73,18 @@ export function useSquads() {
       return (data ?? []) as Squad[];
     },
     staleTime: 120_000,
+  });
+}
+
+export function useCreateSquad() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (name: string) =>
+      api.post<Squad>('/api/admin/squads', { name }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['squads'] });
+      qc.invalidateQueries({ queryKey: ['admin-squads'] });
+    },
   });
 }
 

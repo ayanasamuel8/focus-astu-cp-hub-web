@@ -15,7 +15,7 @@ import { useSyncContest } from '../contests/useContestData';
 import { UserRowSk, StatCardSk } from '../../components/ui/Skeleton';
 import {
   useAdminUsers, useSquads, useUpdateRole, useUpdateSquad, useUpdateBan,
-  useInvitations, useGenerateInvitation,
+  useInvitations, useGenerateInvitation, useCreateSquad,
   useSignupStatus, useToggleSignup,
   useRecentSyncs,
   type AdminUser,
@@ -121,8 +121,12 @@ function UserRow({ user, squads, maxRole, selfId, isMobile }: {
   const { mutate: updateRole }  = useUpdateRole();
   const { mutate: updateSquad } = useUpdateSquad();
 
-  const maxTier      = ROLE_ORDER.indexOf(maxRole);
-  const roleOptions  = ROLE_ORDER
+  const maxTier    = ROLE_ORDER.indexOf(maxRole);
+  const targetTier = ROLE_ORDER.indexOf(user.role as Role);
+  // Lock the row if this user is at/above the actor's assignable ceiling, or is self
+  const roleLocked = user.id === selfId || targetTier >= maxTier;
+
+  const roleOptions = ROLE_ORDER
     .filter((r) => ROLE_ORDER.indexOf(r) < maxTier)
     .map((r) => ({ value: r, label: ROLE_META[r].label }));
   const squadOptions = [
@@ -151,7 +155,12 @@ function UserRow({ user, squads, maxRole, selfId, isMobile }: {
         {/* Row 2: squad + role + ban */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
           <Pill value={user.squad_id ?? ''} options={squadOptions} onChange={(v) => updateSquad({ userId: user.id, squadId: v || null })} />
-          <Pill value={user.role} options={roleOptions} onChange={(v) => updateRole({ userId: user.id, role: v })} color={ROLE_META[user.role as Role]?.c ?? T.text2} />
+          {roleLocked
+            ? <span style={{ fontFamily: T.fD, fontSize: 11.5, fontWeight: 500, color: ROLE_META[user.role as Role]?.c ?? T.text2, background: T.surface3, border: `1px solid ${T.border}`, borderRadius: 7, padding: '4px 9px', opacity: 0.7 }}>
+                {ROLE_META[user.role as Role]?.label ?? user.role}
+              </span>
+            : <Pill value={user.role} options={roleOptions} onChange={(v) => updateRole({ userId: user.id, role: v })} color={ROLE_META[user.role as Role]?.c ?? T.text2} />
+          }
           <div style={{ marginLeft: 'auto' }}>
             <BanToggle userId={user.id} isBanned={user.is_banned} isSelf={user.id === selfId} />
           </div>
@@ -178,7 +187,12 @@ function UserRow({ user, squads, maxRole, selfId, isMobile }: {
         <Pill value={user.squad_id ?? ''} options={squadOptions} onChange={(v) => updateSquad({ userId: user.id, squadId: v || null })} />
       </div>
       <div style={{ width: 150 }}>
-        <Pill value={user.role} options={roleOptions} onChange={(v) => updateRole({ userId: user.id, role: v })} color={ROLE_META[user.role as Role]?.c ?? T.text2} />
+        {roleLocked
+          ? <span style={{ fontFamily: T.fD, fontSize: 11.5, fontWeight: 500, color: ROLE_META[user.role as Role]?.c ?? T.text2, background: T.surface3, border: `1px solid ${T.border}`, borderRadius: 7, padding: '4px 9px', opacity: 0.7, display: 'inline-block' }}>
+              {ROLE_META[user.role as Role]?.label ?? user.role}
+            </span>
+          : <Pill value={user.role} options={roleOptions} onChange={(v) => updateRole({ userId: user.id, role: v })} color={ROLE_META[user.role as Role]?.c ?? T.text2} />
+        }
       </div>
       <span className="mono" style={{ width: 46, textAlign: 'right', fontSize: 11.5, color: T.text2 }}>
         {user.problem_count}
@@ -364,6 +378,90 @@ function InvitationsTab({ isMobile }: { isMobile: boolean }) {
   );
 }
 
+// ── Squads tab ────────────────────────────────────────────────────────────
+function SquadsTab({ isMobile }: { isMobile: boolean }) {
+  const { data: squads = [], isLoading } = useSquads();
+  const { mutateAsync, isPending } = useCreateSquad();
+  const [name, setName] = useState('');
+  const [error, setError] = useState('');
+  const [created, setCreated] = useState<string | null>(null);
+
+  async function handleCreate() {
+    if (!name.trim()) return;
+    setError(''); setCreated(null);
+    try {
+      await mutateAsync(name.trim());
+      setCreated(name.trim());
+      setName('');
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { error?: string } } })?.response?.data?.error;
+      setError(msg ?? 'Failed to create squad.');
+    }
+  }
+
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '280px 1fr', gap: 20 }}>
+      {/* Create form */}
+      <Card>
+        <h3 style={{ margin: '0 0 16px', fontFamily: T.fD, fontSize: 15, fontWeight: 600, color: T.text }}>Create squad</h3>
+        <div style={{ marginBottom: 7, fontFamily: T.fD, fontSize: 12.5, fontWeight: 500, color: T.text2 }}>Squad name</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 9, background: T.surface2, border: `1px solid ${T.border}`, borderRadius: 9, padding: '10px 13px', marginBottom: 8 }}>
+          <Icon name="profile" size={16} style={{ color: T.text3 }} />
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="e.g. Alpha Squad"
+            onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+            style={{ fontFamily: T.fB, fontSize: 13.5, color: T.text, background: 'transparent', border: 'none', outline: 'none', flex: 1 }}
+          />
+        </div>
+        {error && (
+          <div style={{ marginBottom: 12, padding: '10px 13px', borderRadius: 9, background: 'rgba(242,101,79,0.10)', border: '1px solid rgba(242,101,79,0.3)', fontFamily: T.fB, fontSize: 12.5, color: T.loss }}>
+            {error}
+          </div>
+        )}
+        {created && (
+          <div style={{ marginBottom: 12, padding: '10px 13px', borderRadius: 9, background: 'rgba(69,212,131,0.10)', border: '1px solid rgba(69,212,131,0.3)', fontFamily: T.fB, fontSize: 12.5, color: T.gain }}>
+            Squad "{created}" created.
+          </div>
+        )}
+        <Btn kind="primary" full icon="plus" disabled={isPending || !name.trim()} onClick={handleCreate}>
+          {isPending ? 'Creating…' : 'Create squad'}
+        </Btn>
+      </Card>
+
+      {/* Squad list */}
+      <div>
+        <h3 style={{ margin: '0 0 14px', fontFamily: T.fD, fontSize: 15, fontWeight: 600, color: T.text }}>
+          All squads ({squads.length})
+        </h3>
+        <Card pad={0} style={{ overflow: 'hidden' }}>
+          {isLoading && [1,2,3].map((i) => (
+            <div key={i} style={{ padding: '14px 18px', borderTop: i > 1 ? `1px solid ${T.borderSoft}` : 'none', display: 'flex', gap: 10, alignItems: 'center' }}>
+              <div style={{ width: 28, height: 28, borderRadius: 7, background: T.surface3 }} />
+              <div style={{ width: 120, height: 13, borderRadius: 4, background: T.surface3 }} />
+            </div>
+          ))}
+          {!isLoading && squads.length === 0 && (
+            <div style={{ padding: '24px', textAlign: 'center', fontFamily: T.fB, fontSize: 14, color: T.text3 }}>
+              No squads yet. Create one to get started.
+            </div>
+          )}
+          {squads.map((s, i) => (
+            <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 18px', borderTop: i ? `1px solid ${T.borderSoft}` : 'none' }}>
+              <div style={{ width: 30, height: 30, borderRadius: 8, background: T.accentGhost, border: `1px solid ${T.accentLine}`, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                <Icon name="profile" size={14} style={{ color: T.accent }} />
+              </div>
+              <span style={{ fontFamily: T.fD, fontSize: 13.5, fontWeight: 500, color: T.text, flex: 1 }}>{s.name}</span>
+              <span className="mono" style={{ fontSize: 10.5, color: T.text3 }}>{s.id.slice(0, 8)}…</span>
+            </div>
+          ))}
+        </Card>
+      </div>
+    </div>
+  );
+}
+
 // ── Contest sync tab ──────────────────────────────────────────────────────
 function SyncTab({ squadId: _squadId, isMobile }: { squadId: string | null; isMobile: boolean }) {
   const [cfId, setCfId]           = useState('');
@@ -438,7 +536,7 @@ function SyncTab({ squadId: _squadId, isMobile }: { squadId: string | null; isMo
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────
-type Tab = 'users' | 'invites' | 'sync';
+type Tab = 'users' | 'squads' | 'invites' | 'sync';
 
 export default function AdminPage() {
   const appUser = useAppUser();
@@ -467,7 +565,8 @@ export default function AdminPage() {
   const banned       = users.filter((u) => u.is_banned).length;
 
   const TAB_LABELS: [Tab, string][] = [
-    ['users',   'User management'],
+    ['users',   'Users'],
+    ['squads',  'Squads'],
     ['invites', 'Invitations'],
     ['sync',    'Contest sync'],
   ];
@@ -514,7 +613,8 @@ export default function AdminPage() {
           ))}
         </div>
 
-        {tab === 'users'   && <UsersTab   isSuperAdmin={isSuperAdmin} selfId={appUser.id} isMobile={isMobile} />}
+        {tab === 'users'   && <UsersTab isSuperAdmin={isSuperAdmin} selfId={appUser.id} isMobile={isMobile} />}
+        {tab === 'squads'  && <SquadsTab isMobile={isMobile} />}
         {tab === 'invites' && <InvitationsTab isMobile={isMobile} />}
         {tab === 'sync'    && <SyncTab squadId={appUser.squadId} isMobile={isMobile} />}
       </div>
