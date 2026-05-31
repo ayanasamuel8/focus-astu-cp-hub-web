@@ -1,0 +1,4294 @@
+<!DOCTYPE html><html lang="en" class="no-js"><head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for the Focus ASTU Competitive Programming Hub">
+      
+      
+      
+        <link rel="canonical" href="https://focusastu.github.io/focus-astu-cp-hub-web/Focus%20ASTU%20CP%20Hub%20%E2%80%94%20Master%20System%20Design%20Document%20v3.0/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Focus ASTU CP Hub — Master System Design Document v3.0 - Focus ASTU CP Hub</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  <link href="../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#table-of-contents" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Focus ASTU CP Hub" class="md-header__button md-logo" aria-label="Focus ASTU CP Hub" data-md-component="logo">
+      
+  <img src="../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Focus ASTU CP Hub
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Focus ASTU CP Hub — Master System Design Document v3.0
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal" aria-label="Switch to light mode" type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden="">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal" aria-label="Switch to dark mode" type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden="">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required="">
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard="" data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix="">
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/focusastu/focus-astu-cp-hub-web" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+  </div>
+  <div class="md-source__repository">
+    focusastu/focus-astu-cp-hub-web
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../backend/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Backend
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../frontend/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Frontend
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../extension/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Extension
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../testing/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Testing Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Focus ASTU CP Hub" class="md-nav__button md-logo" aria-label="Focus ASTU CP Hub" data-md-component="logo">
+      
+  <img src="../assets/logo.svg" alt="logo">
+
+    </a>
+    Focus ASTU CP Hub
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/focusastu/focus-astu-cp-hub-web" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+  </div>
+  <div class="md-source__repository">
+    focusastu/focus-astu-cp-hub-web
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix="">
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../getting-started/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/env-vars/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Environment Variables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../backend/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backend
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Backend
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/api-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/database/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Database Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/roles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roles &amp; Permissions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../frontend/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frontend
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Frontend
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../frontend/features/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Features
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../frontend/pages/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pages &amp; Routes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../extension/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Extension
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Extension
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../extension/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../extension/how-it-works/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How It Works
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../testing/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing Guide
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Testing Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../testing/setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Environment Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../testing/scenarios/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Test Scenarios
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../testing/reporting-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reporting Issues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<p><strong>FOCUS ASTU CP HUB</strong></p>
+<p><strong>Master System Design Document</strong></p>
+<p><em>Version 3.0</em></p>
+<p>Focus ASTU Competitive Programming Community</p>
+<p>Adama Science and Technology University</p>
+<p>Document Status: Final Draft  |  May 2026</p>
+<h1 id="table-of-contents"><strong>Table of Contents</strong><a class="headerlink" href="#table-of-contents" title="Permanent link">¶</a></h1>
+<p><a href="#heading="><strong>Table of Contents    2</strong></a></p>
+<p><a href="#heading="><strong>1. Executive Summary    5</strong></a></p>
+<p><a href="#heading="><strong>2. System Overview &amp; Goals  5</strong></a></p>
+<p><a href="#heading=">2.1  Core Features (MVP)   5</a></p>
+<p><a href="#heading=">2.2  Design Constraints    6</a></p>
+<p><a href="#heading="><strong>3. Technology Stack 6</strong></a></p>
+<p><a href="#heading="><strong>4. High-Level Architecture  7</strong></a></p>
+<p><a href="#heading=">4.1  System Topology   7</a></p>
+<p><a href="#heading=">4.2  Request Flow Summary  8</a></p>
+<p><a href="#heading="><strong>5. Database Design  8</strong></a></p>
+<p><a href="#heading=">5.1  Database Enums    8</a></p>
+<p><a href="#heading=">5.2  Table Definitions 8</a></p>
+<p><a href="#heading=">Table: squads  8</a></p>
+<p><a href="#heading=">Table: users   9</a></p>
+<p><a href="#heading=">Table: invitations 9</a></p>
+<p><a href="#heading=">Table: system_settings    10</a></p>
+<p><a href="#heading=">Table: user_roles_history    10</a></p>
+<p><a href="#heading=">Table: problems    10</a></p>
+<p><a href="#heading=">Table: submissions 11</a></p>
+<p><a href="#heading=">Table: contests    11</a></p>
+<p><a href="#heading=">Table: contest_standings  12</a></p>
+<p><a href="#heading=">Table: squad_tracks   12</a></p>
+<p><a href="#heading=">Table: squad_track_topics    12</a></p>
+<p><a href="#heading=">Table: topic_problems 13</a></p>
+<p><a href="#heading=">Table: editorials  13</a></p>
+<p><a href="#heading=">Table: announcements   13</a></p>
+<p><a href="#heading=">5.3  Row Level Security Policies   14</a></p>
+<p><a href="#heading="><strong>6. Authentication &amp; Authorization   15</strong></a></p>
+<p><a href="#heading=">6.1  Core Principles   15</a></p>
+<p><a href="#heading=">6.2  Registration &amp; Invitation Flow    15</a></p>
+<p><a href="#heading=">Path A — Public Signup (when enabled by Super Admin)   15</a></p>
+<p><a href="#heading=">Path B — Admin Invitation (default / primary path) 15</a></p>
+<p><a href="#heading=">6.3  Profile Completion Flow   15</a></p>
+<p><a href="#heading=">6.4  Role Hierarchy &amp; Permission Matrix    16</a></p>
+<p><a href="#heading=">6.5  Route Protection Strategy (Frontend)  16</a></p>
+<p><a href="#heading="><strong>7. Backend Design (Go — Clean Architecture) 17</strong></a></p>
+<p><a href="#heading=">7.1  Directory Structure   17</a></p>
+<p><a href="#heading=">7.2  Core Use Cases    17</a></p>
+<p><a href="#heading=">UC-01: Problem Submission  17</a></p>
+<p><a href="#heading=">UC-02: Codeforces Contest Sync 18</a></p>
+<p><a href="#heading=">UC-03: Squad Track Management  18</a></p>
+<p><a href="#heading=">UC-04: Daily Verse 18</a></p>
+<p><a href="#heading=">7.3  REST API Endpoint Reference   18</a></p>
+<p><a href="#heading=">Public Endpoints (No Auth Required)    19</a></p>
+<p><a href="#heading=">Authenticated Endpoints (Any Active, Non-Banned User)  19</a></p>
+<p><a href="#heading=">Squad Lead Endpoints   19</a></p>
+<p><a href="#heading=">Admin &amp; Super Admin Endpoints  20</a></p>
+<p><a href="#heading=">7.4  Background Services   20</a></p>
+<p><a href="#heading=">Daily Verse Cache  20</a></p>
+<p><a href="#heading=">7.5  Deployment (Docker)   20</a></p>
+<p><a href="#heading="><strong>8. Frontend Design (React + Vite)  21</strong></a></p>
+<p><a href="#heading=">8.1  Architecture &amp; State Management   21</a></p>
+<p><a href="#heading=">8.2  Directory Structure   21</a></p>
+<p><a href="#heading=">8.3  Page &amp; Feature Inventory  22</a></p>
+<p><a href="#heading=">8.4  Browser Extension Integration 23</a></p>
+<p><a href="#heading="><strong>9. Landing Page &amp; Navigation Model  23</strong></a></p>
+<p><a href="#heading=">9.1  Landing Page  23</a></p>
+<p><a href="#heading=">9.1.1  Landing Page Navbar 23</a></p>
+<p><a href="#heading=">9.1.2  Landing Page Content    23</a></p>
+<p><a href="#heading=">9.1.3  What the Landing Page Does NOT Show 24</a></p>
+<p><a href="#heading=">9.2  Announcements Page (/announcements)   24</a></p>
+<p><a href="#heading=">New Backend Endpoint Required  24</a></p>
+<p><a href="#heading=">Updated RLS / Endpoint Behaviour for Announcements 24</a></p>
+<p><a href="#heading=">9.3  Navigation Model  24</a></p>
+<p><a href="#heading=">9.3.1  Two Distinct Shells 24</a></p>
+<p><a href="#heading=">9.3.2  Sidebar Navigation Items    25</a></p>
+<p><a href="#heading=">9.3.3  Dashboard Page Content  25</a></p>
+<p><a href="#heading="><strong>10. Browser Extension Design (Core MVP) 25</strong></a></p>
+<p><a href="#heading=">10.1  Overview &amp; Supported Platforms   25</a></p>
+<p><a href="#heading=">10.2  Extension Architecture   26</a></p>
+<p><a href="#heading=">10.3  Authentication Handshake 26</a></p>
+<p><a href="#heading=">10.4  Submission Capture Flow  26</a></p>
+<p><a href="#heading="><strong>11. Phase 2 — Future Features   27</strong></a></p>
+<p><a href="#heading="><strong>12. Implementation Roadmap  27</strong></a></p>
+<p><a href="#heading=">Phase 1 — Foundation (Weeks 1–2)   27</a></p>
+<p><a href="#heading=">Phase 2 — Backend Core (Weeks 2–3) 28</a></p>
+<p><a href="#heading=">Phase 3 — Frontend Scaffolding (Weeks 3–4) 28</a></p>
+<p><a href="#heading=">Phase 4 — Core Features (Weeks 4–6)    28</a></p>
+<p><a href="#heading=">Phase 5 — Contest &amp; Squad Features (Weeks 6–8) 29</a></p>
+<p><a href="#heading=">Phase 6 — Browser Extension (Weeks 7–9, parallel)  29</a></p>
+<p><a href="#heading=">Phase 7 — Deployment &amp; Hardening (Weeks 9–10)  29</a></p>
+<p><a href="#heading="><strong>13. Non-Functional Requirements 30</strong></a></p>
+<h1 id="1-executive-summary"><strong>1. Executive Summary</strong><a class="headerlink" href="#1-executive-summary" title="Permanent link">¶</a></h1>
+<p>Focus ASTU CP Hub is a private, invite-only competitive programming portal built for the Focus ASTU tech community at Adama Science and Technology University. The platform is modelled after elite CP training hubs (e.g., A2SV) and provides a centralized space for tracking problem-solving progress, running internal contests, managing squad-based curriculum, and building a culture of competitive accountability.</p>
+<p>The system is organized around the concept of Squads — cohorts of members analogous to "generations" at A2SV — each led by Squad Leaders who design and deliver their squad's algorithmic curriculum. Admins manage the overall platform, while a Super Admin controls global system settings.</p>
+<p>The platform consists of three interconnected components:</p>
+<ul>
+<li>
+<p>A Go backend implementing Clean Architecture, exposed as a REST API.</p>
+</li>
+<li>
+<p>A React frontend (Vite + TypeScript) consuming both the Go API and Supabase directly.</p>
+</li>
+<li>
+<p>A browser extension (Chrome/Firefox) that automatically captures accepted submissions from LeetCode, Codeforces, and AtCoder and posts them to the portal.</p>
+</li>
+</ul>
+<h1 id="2-system-overview-goals"><strong>2. System Overview &amp; Goals</strong><a class="headerlink" href="#2-system-overview-goals" title="Permanent link">¶</a></h1>
+<h2 id="21-core-features-mvp"><strong>2.1  Core Features (MVP)</strong><a class="headerlink" href="#21-core-features-mvp" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Feature</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Invite-Only Registration</td>
+<td style="text-align: left;">Users join via an admin-generated invitation link or when public signup is explicitly enabled by a Super Admin.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Squad-Based Organization</td>
+<td style="text-align: left;">Members belong to numbered Squads (e.g., 1st Squad, 2nd Squad). Each squad has its own lead, curriculum, and announcements.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Problem Tracking</td>
+<td style="text-align: left;">Master list of problems from LeetCode, Codeforces, and AtCoder. Members log solutions; the platform tracks counts and streaks.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Code Viewing</td>
+<td style="text-align: left;">Submitted code is stored and viewable by all members with syntax highlighting. No code execution is performed.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Contest Sync</td>
+<td style="text-align: left;">Admins sync Codeforces contests by contest ID. The system fetches standings, maps participants to portal users, and tracks upsolves.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Editorials</td>
+<td style="text-align: left;">Any member can write a Markdown editorial for any problem.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Squad Curriculum Tracks</td>
+<td style="text-align: left;">Squad Leads design curriculum trees (Track → Topics → Problems) for their squad.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Announcements</td>
+<td style="text-align: left;">Global announcements (from Admins) and squad-scoped announcements (from Squad Leads).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Browser Extension</td>
+<td style="text-align: left;">Auto-captures accepted solutions from LeetCode, Codeforces, and AtCoder and submits them to the portal silently.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Daily Verse</td>
+<td style="text-align: left;">A Bible verse fetched from a public API, cached server-side, and displayed on the Landing Page.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Admin Dashboard</td>
+<td style="text-align: left;">User management, role assignment, squad assignment, ban management, and contest sync.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="22-design-constraints"><strong>2.2  Design Constraints</strong><a class="headerlink" href="#22-design-constraints" title="Permanent link">¶</a></h2>
+<ul>
+<li>
+<p>Deployment target is a budget VPS (1–2 GB RAM). All design decisions must respect this constraint.</p>
+</li>
+<li>
+<p>No code execution engine. The platform stores and displays code only.</p>
+</li>
+<li>
+<p>Authentication is entirely delegated to Supabase Auth. No custom password management.</p>
+</li>
+<li>
+<p>Frontend design (colors, fonts, animations) is defined separately and is excluded from this document.</p>
+</li>
+</ul>
+<h1 id="3-technology-stack"><strong>3. Technology Stack</strong><a class="headerlink" href="#3-technology-stack" title="Permanent link">¶</a></h1>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Layer</th>
+<th style="text-align: left;">Technology</th>
+<th style="text-align: left;">Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Backend Language</td>
+<td style="text-align: left;">Go (Golang) 1.21+</td>
+<td style="text-align: left;">\~15 MB container image, high concurrency via goroutines, ideal for budget VPS hosting.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Backend Framework</td>
+<td style="text-align: left;">Echo v4</td>
+<td style="text-align: left;">Lightweight HTTP router with good middleware support for JWT and CORS.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Database</td>
+<td style="text-align: left;">PostgreSQL via Supabase</td>
+<td style="text-align: left;">Managed PostgreSQL with built-in Auth, Row Level Security, and real-time capabilities.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Database Client (Go)</td>
+<td style="text-align: left;">pgx/v5 (pgxpool)</td>
+<td style="text-align: left;">High-performance PostgreSQL driver with connection pooling.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Authentication</td>
+<td style="text-align: left;">Supabase Auth</td>
+<td style="text-align: left;">Handles magic links, invite flows, JWT issuance, and session management.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Frontend Framework</td>
+<td style="text-align: left;">React 18 + Vite + TypeScript</td>
+<td style="text-align: left;">Fast HMR in development, optimized production builds, strong typing.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Frontend Routing</td>
+<td style="text-align: left;">React Router DOM v6</td>
+<td style="text-align: left;">SPA navigation with nested layout routes and route guards.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Frontend Data Fetching</td>
+<td style="text-align: left;">TanStack Query</td>
+<td style="text-align: left;">Server-state caching, background refetching, and stale-while-revalidate strategy.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Frontend State</td>
+<td style="text-align: left;">Zustand</td>
+<td style="text-align: left;">Minimal global state for UI toggles. TanStack Query handles all server state.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Supabase Client</td>
+<td style="text-align: left;">@supabase/supabase-js</td>
+<td style="text-align: left;">Auth state management and direct DB reads where no Go business logic is required.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Containerization</td>
+<td style="text-align: left;">Docker + Docker Compose</td>
+<td style="text-align: left;">Reproducible builds, simple VPS deployment. Multi-stage builds keep images minimal.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Reverse Proxy</td>
+<td style="text-align: left;">Nginx (in Docker)</td>
+<td style="text-align: left;">Serves the built React SPA and proxies /api/* to the Go container.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Browser Extension</td>
+<td style="text-align: left;">Manifest V3 (Chrome/Firefox)</td>
+<td style="text-align: left;">Modern extension standard with background service workers and content scripts.</td>
+</tr>
+<tr>
+<td style="text-align: left;">External APIs</td>
+<td style="text-align: left;">Codeforces API, Bible Verse API</td>
+<td style="text-align: left;">Free, public APIs requiring no authentication.</td>
+</tr>
+</tbody>
+</table>
+<h1 id="4-high-level-architecture"><strong>4. High-Level Architecture</strong><a class="headerlink" href="#4-high-level-architecture" title="Permanent link">¶</a></h1>
+<h2 id="41-system-topology"><strong>4.1  System Topology</strong><a class="headerlink" href="#41-system-topology" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">┌──────────────────────────────────────────────────────────────┐</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">│                        CLIENT LAYER                          │</td>
+</tr>
+<tr>
+<td style="text-align: left;">│                                                              │</td>
+</tr>
+<tr>
+<td style="text-align: left;">│  ┌───────────────────────┐   ┌──────────────────────────┐   │</td>
+</tr>
+<tr>
+<td style="text-align: left;">│  │   React SPA            │   │  Browser Extension        │   │</td>
+</tr>
+<tr>
+<td style="text-align: left;">│  │  (Vite + TypeScript)   │   │  (Chrome / Firefox MV3)   │   │</td>
+</tr>
+<tr>
+<td style="text-align: left;">│  └──────────┬────────────┘   └──────────┬───────────────┘   │</td>
+</tr>
+<tr>
+<td style="text-align: left;">└─────────────┼─────────────────────────── ┼ ─────────────────┘</td>
+</tr>
+<tr>
+<td style="text-align: left;">│ REST /api/*                 │ POST /api/submissions</td>
+</tr>
+<tr>
+<td style="text-align: left;">▼                             ▼</td>
+</tr>
+<tr>
+<td style="text-align: left;">┌──────────────────────────────────────────────────────────────┐</td>
+</tr>
+<tr>
+<td style="text-align: left;">│                  NGINX REVERSE PROXY                         │</td>
+</tr>
+<tr>
+<td style="text-align: left;">│       serves /  →  React SPA static files                    │</td>
+</tr>
+<tr>
+<td style="text-align: left;">│       proxies /api/* → Go Backend :8080                      │</td>
+</tr>
+<tr>
+<td style="text-align: left;">└──────────────────────────┬───────────────────────────────────┘</td>
+</tr>
+<tr>
+<td style="text-align: left;">│</td>
+</tr>
+<tr>
+<td style="text-align: left;">▼</td>
+</tr>
+<tr>
+<td style="text-align: left;">┌──────────────────────────────────────────────────────────────┐</td>
+</tr>
+<tr>
+<td style="text-align: left;">│                  GO BACKEND  (:8080)                         │</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   Clean Architecture: domain / usecase / repository /        │</td>
+</tr>
+<tr>
+<td style="text-align: left;">│                        delivery                              │</td>
+</tr>
+<tr>
+<td style="text-align: left;">│  ┌────────────────┐ ┌─────────────────┐ ┌───────────────┐   │</td>
+</tr>
+<tr>
+<td style="text-align: left;">│  │ Submission UC  │ │ Contest Sync UC  │ │  Squad UC     │   │</td>
+</tr>
+<tr>
+<td style="text-align: left;">│  └────────────────┘ └────────┬────────┘ └───────────────┘   │</td>
+</tr>
+<tr>
+<td style="text-align: left;">│  ┌────────────────┐ ┌────────▼────────┐                     │</td>
+</tr>
+<tr>
+<td style="text-align: left;">│  │ Verse Fetcher  │ │  CF API Client   │                     │</td>
+</tr>
+<tr>
+<td style="text-align: left;">│  │ (24hr cache)   │ │  codeforces.com  │                     │</td>
+</tr>
+<tr>
+<td style="text-align: left;">│  └────────────────┘ └─────────────────┘                     │</td>
+</tr>
+<tr>
+<td style="text-align: left;">└─────────────────────────────┬────────────────────────────────┘</td>
+</tr>
+<tr>
+<td style="text-align: left;">│  pgx/v5  (DATABASE_URL)</td>
+</tr>
+<tr>
+<td style="text-align: left;">▼</td>
+</tr>
+<tr>
+<td style="text-align: left;">┌──────────────────────────────────────────────────────────────┐</td>
+</tr>
+<tr>
+<td style="text-align: left;">│                       SUPABASE                               │</td>
+</tr>
+<tr>
+<td style="text-align: left;">│  ┌─────────────┐  ┌──────────────────┐  ┌───────────────┐   │</td>
+</tr>
+<tr>
+<td style="text-align: left;">│  │ Auth Service│  │  PostgreSQL DB    │  │ RLS Policies  │   │</td>
+</tr>
+<tr>
+<td style="text-align: left;">│  └─────────────┘  └──────────────────┘  └───────────────┘   │</td>
+</tr>
+<tr>
+<td style="text-align: left;">└──────────────────────────────────────────────────────────────┘</td>
+</tr>
+</tbody>
+</table>
+<h2 id="42-request-flow-summary"><strong>4.2  Request Flow Summary</strong><a class="headerlink" href="#42-request-flow-summary" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Scenario</th>
+<th style="text-align: left;">Flow</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">User logs in</td>
+<td style="text-align: left;">React → Supabase Auth (magic link) → Supabase returns JWT → stored in React context</td>
+</tr>
+<tr>
+<td style="text-align: left;">User views problem list</td>
+<td style="text-align: left;">React → Supabase JS client directly (RLS-protected SELECT on problems) — bypasses Go to save compute</td>
+</tr>
+<tr>
+<td style="text-align: left;">Extension submits code</td>
+<td style="text-align: left;">Extension → Nginx → Go API (JWT validated) → Postgres → streak/count updated</td>
+</tr>
+<tr>
+<td style="text-align: left;">Squad Lead syncs CF contest</td>
+<td style="text-align: left;">React → Nginx → Go API (Squad Lead JWT + squad_id check) → Go calls Codeforces API → results saved to Postgres</td>
+</tr>
+<tr>
+<td style="text-align: left;">User reads dashboard</td>
+<td style="text-align: left;">React → Go API GET /api/verse (cached) + Supabase direct for user stats</td>
+</tr>
+</tbody>
+</table>
+<h1 id="5-database-design"><strong>5. Database Design</strong><a class="headerlink" href="#5-database-design" title="Permanent link">¶</a></h1>
+<h2 id="51-database-enums"><strong>5.1  Database Enums</strong><a class="headerlink" href="#51-database-enums" title="Permanent link">¶</a></h2>
+<p>All enums are defined as PostgreSQL ENUM types for type safety at the database level.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">CREATE TYPE role_type AS ENUM (</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">'SUPER_ADMIN', 'ADMIN', 'SQUAD_LEAD', 'SQUAD_MEMBER', 'COMMUNITY'</td>
+</tr>
+<tr>
+<td style="text-align: left;">);</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">CREATE TYPE platform_type AS ENUM (</td>
+</tr>
+<tr>
+<td style="text-align: left;">'LEETCODE', 'CODEFORCES', 'ATCODER', 'OTHER'</td>
+</tr>
+<tr>
+<td style="text-align: left;">);</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">CREATE TYPE announcement_scope AS ENUM (</td>
+</tr>
+<tr>
+<td style="text-align: left;">'GLOBAL', 'SQUAD'</td>
+</tr>
+<tr>
+<td style="text-align: left;">);</td>
+</tr>
+</tbody>
+</table>
+<h2 id="52-table-definitions"><strong>5.2  Table Definitions</strong><a class="headerlink" href="#52-table-definitions" title="Permanent link">¶</a></h2>
+<h3 id="table-squads"><strong>Table: squads</strong><a class="headerlink" href="#table-squads" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Column</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Constraints</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">PK, DEFAULT gen_random_uuid()</td>
+<td style="text-align: left;">Primary key</td>
+</tr>
+<tr>
+<td style="text-align: left;">name</td>
+<td style="text-align: left;">TEXT</td>
+<td style="text-align: left;">NOT NULL, UNIQUE</td>
+<td style="text-align: left;">e.g. "1st Squad", "2nd Squad"</td>
+</tr>
+<tr>
+<td style="text-align: left;">created_at</td>
+<td style="text-align: left;">TIMESTAMPTZ</td>
+<td style="text-align: left;">DEFAULT now()</td>
+<td style="text-align: left;">Creation timestamp</td>
+</tr>
+</tbody>
+</table>
+<h3 id="table-users"><strong>Table: users</strong><a class="headerlink" href="#table-users" title="Permanent link">¶</a></h3>
+<p>Maps 1:1 to auth.users. Stores all application-level profile data. Created via a Supabase Auth trigger on first login.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Column</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Constraints</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">PK, FK → auth.users.id ON DELETE CASCADE</td>
+<td style="text-align: left;">Mirrors Supabase Auth user ID</td>
+</tr>
+<tr>
+<td style="text-align: left;">email</td>
+<td style="text-align: left;">TEXT</td>
+<td style="text-align: left;">NOT NULL, UNIQUE</td>
+<td style="text-align: left;">User email (synced from auth)</td>
+</tr>
+<tr>
+<td style="text-align: left;">full_name</td>
+<td style="text-align: left;">TEXT</td>
+<td style="text-align: left;">NOT NULL</td>
+<td style="text-align: left;">Display name</td>
+</tr>
+<tr>
+<td style="text-align: left;">bio</td>
+<td style="text-align: left;">TEXT</td>
+<td style="text-align: left;">NULLABLE</td>
+<td style="text-align: left;">Short personal bio</td>
+</tr>
+<tr>
+<td style="text-align: left;">telegram_handle</td>
+<td style="text-align: left;">TEXT</td>
+<td style="text-align: left;">NOT NULL (required at completion)</td>
+<td style="text-align: left;">Telegram username (no @)</td>
+</tr>
+<tr>
+<td style="text-align: left;">linkedin_url</td>
+<td style="text-align: left;">TEXT</td>
+<td style="text-align: left;">NULLABLE</td>
+<td style="text-align: left;">LinkedIn profile URL</td>
+</tr>
+<tr>
+<td style="text-align: left;">leetcode_handle</td>
+<td style="text-align: left;">TEXT</td>
+<td style="text-align: left;">NULLABLE</td>
+<td style="text-align: left;">LeetCode username</td>
+</tr>
+<tr>
+<td style="text-align: left;">codeforces_handle</td>
+<td style="text-align: left;">TEXT</td>
+<td style="text-align: left;">NULLABLE</td>
+<td style="text-align: left;">Used for CF contest matching</td>
+</tr>
+<tr>
+<td style="text-align: left;">atcoder_handle</td>
+<td style="text-align: left;">TEXT</td>
+<td style="text-align: left;">NULLABLE</td>
+<td style="text-align: left;">AtCoder handle</td>
+</tr>
+<tr>
+<td style="text-align: left;">squad_id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">NULLABLE, FK → squads.id ON DELETE SET NULL</td>
+<td style="text-align: left;">NULL \= COMMUNITY role</td>
+</tr>
+<tr>
+<td style="text-align: left;">role</td>
+<td style="text-align: left;">role_type</td>
+<td style="text-align: left;">NOT NULL, DEFAULT 'COMMUNITY'</td>
+<td style="text-align: left;">User's current role</td>
+</tr>
+<tr>
+<td style="text-align: left;">is_banned</td>
+<td style="text-align: left;">BOOLEAN</td>
+<td style="text-align: left;">NOT NULL, DEFAULT false</td>
+<td style="text-align: left;">Banned users get 403 on all writes</td>
+</tr>
+<tr>
+<td style="text-align: left;">is_active</td>
+<td style="text-align: left;">BOOLEAN</td>
+<td style="text-align: left;">NOT NULL, DEFAULT false</td>
+<td style="text-align: left;">False until profile completion</td>
+</tr>
+<tr>
+<td style="text-align: left;">problem_count</td>
+<td style="text-align: left;">INTEGER</td>
+<td style="text-align: left;">NOT NULL, DEFAULT 0</td>
+<td style="text-align: left;">Denormalized total unique solves</td>
+</tr>
+<tr>
+<td style="text-align: left;">daily_streak</td>
+<td style="text-align: left;">INTEGER</td>
+<td style="text-align: left;">NOT NULL, DEFAULT 0</td>
+<td style="text-align: left;">Consecutive days with a submission</td>
+</tr>
+<tr>
+<td style="text-align: left;">last_submission_date</td>
+<td style="text-align: left;">DATE</td>
+<td style="text-align: left;">NULLABLE</td>
+<td style="text-align: left;">Used to compute streak continuity</td>
+</tr>
+<tr>
+<td style="text-align: left;">created_at</td>
+<td style="text-align: left;">TIMESTAMPTZ</td>
+<td style="text-align: left;">DEFAULT now()</td>
+<td style="text-align: left;">Account creation time</td>
+</tr>
+</tbody>
+</table>
+<h3 id="table-invitations"><strong>Table: invitations</strong><a class="headerlink" href="#table-invitations" title="Permanent link">¶</a></h3>
+<p>Tracks admin-generated invite tokens. Enforces that only the intended email can consume each token.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Column</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Constraints</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">PK, DEFAULT gen_random_uuid()</td>
+<td style="text-align: left;">Primary key</td>
+</tr>
+<tr>
+<td style="text-align: left;">email</td>
+<td style="text-align: left;">TEXT</td>
+<td style="text-align: left;">NOT NULL</td>
+<td style="text-align: left;">The email this invitation is locked to</td>
+</tr>
+<tr>
+<td style="text-align: left;">token</td>
+<td style="text-align: left;">TEXT</td>
+<td style="text-align: left;">NOT NULL, UNIQUE</td>
+<td style="text-align: left;">Cryptographically random 32-byte hex token</td>
+</tr>
+<tr>
+<td style="text-align: left;">created_by</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">FK → users.id</td>
+<td style="text-align: left;">The admin who generated the invite</td>
+</tr>
+<tr>
+<td style="text-align: left;">expires_at</td>
+<td style="text-align: left;">TIMESTAMPTZ</td>
+<td style="text-align: left;">NOT NULL</td>
+<td style="text-align: left;">Validity window (e.g. 72 hours from creation)</td>
+</tr>
+<tr>
+<td style="text-align: left;">used_at</td>
+<td style="text-align: left;">TIMESTAMPTZ</td>
+<td style="text-align: left;">NULLABLE</td>
+<td style="text-align: left;">Set on consumption; NULL means still valid</td>
+</tr>
+<tr>
+<td style="text-align: left;">created_at</td>
+<td style="text-align: left;">TIMESTAMPTZ</td>
+<td style="text-align: left;">DEFAULT now()</td>
+<td style="text-align: left;">Creation timestamp</td>
+</tr>
+</tbody>
+</table>
+<h3 id="table-system_settings"><strong>Table: system_settings</strong><a class="headerlink" href="#table-system_settings" title="Permanent link">¶</a></h3>
+<p>A key-value store for global platform configuration. Managed exclusively by Super Admins. Seed: INSERT INTO system_settings (key, value) VALUES ('signup_open', 'false');</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Column</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Constraints</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">key</td>
+<td style="text-align: left;">TEXT</td>
+<td style="text-align: left;">PRIMARY KEY</td>
+<td style="text-align: left;">Setting name, e.g. signup_open</td>
+</tr>
+<tr>
+<td style="text-align: left;">value</td>
+<td style="text-align: left;">TEXT</td>
+<td style="text-align: left;">NOT NULL</td>
+<td style="text-align: left;">String value, e.g. "false"</td>
+</tr>
+<tr>
+<td style="text-align: left;">updated_at</td>
+<td style="text-align: left;">TIMESTAMPTZ</td>
+<td style="text-align: left;">DEFAULT now()</td>
+<td style="text-align: left;">Last modified timestamp</td>
+</tr>
+</tbody>
+</table>
+<h3 id="table-user_roles_history"><strong>Table: user_roles_history</strong><a class="headerlink" href="#table-user_roles_history" title="Permanent link">¶</a></h3>
+<p>Immutable log of role and squad assignments over time. Powers dynamic badge generation (e.g. "2nd Squad Lead").</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Column</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Constraints</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">PK, DEFAULT gen_random_uuid()</td>
+<td style="text-align: left;">Primary key</td>
+</tr>
+<tr>
+<td style="text-align: left;">user_id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">NOT NULL, FK → users.id ON DELETE CASCADE</td>
+<td style="text-align: left;">The user whose role changed</td>
+</tr>
+<tr>
+<td style="text-align: left;">squad_id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">NULLABLE, FK → squads.id</td>
+<td style="text-align: left;">Squad context at time of role assignment</td>
+</tr>
+<tr>
+<td style="text-align: left;">role</td>
+<td style="text-align: left;">role_type</td>
+<td style="text-align: left;">NOT NULL</td>
+<td style="text-align: left;">The role assigned</td>
+</tr>
+<tr>
+<td style="text-align: left;">assigned_at</td>
+<td style="text-align: left;">TIMESTAMPTZ</td>
+<td style="text-align: left;">DEFAULT now()</td>
+<td style="text-align: left;">When this role was assigned</td>
+</tr>
+</tbody>
+</table>
+<h3 id="table-problems"><strong>Table: problems</strong><a class="headerlink" href="#table-problems" title="Permanent link">¶</a></h3>
+<p>Master catalog of all problems across all platforms. Problems are created automatically when an extension submission references an unknown external_id.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Column</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Constraints</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">PK, DEFAULT gen_random_uuid()</td>
+<td style="text-align: left;">Internal problem ID</td>
+</tr>
+<tr>
+<td style="text-align: left;">name</td>
+<td style="text-align: left;">TEXT</td>
+<td style="text-align: left;">NOT NULL</td>
+<td style="text-align: left;">Human-readable problem name</td>
+</tr>
+<tr>
+<td style="text-align: left;">platform</td>
+<td style="text-align: left;">platform_type</td>
+<td style="text-align: left;">NOT NULL</td>
+<td style="text-align: left;">Source platform</td>
+</tr>
+<tr>
+<td style="text-align: left;">external_id</td>
+<td style="text-align: left;">TEXT</td>
+<td style="text-align: left;">NOT NULL</td>
+<td style="text-align: left;">Platform-specific identifier (e.g. 1A, two-sum)</td>
+</tr>
+<tr>
+<td style="text-align: left;">external_link</td>
+<td style="text-align: left;">TEXT</td>
+<td style="text-align: left;">NOT NULL</td>
+<td style="text-align: left;">Direct URL to the problem page</td>
+</tr>
+<tr>
+<td style="text-align: left;">tags</td>
+<td style="text-align: left;">TEXT[]</td>
+<td style="text-align: left;">DEFAULT '{}'</td>
+<td dp_="dp," greedy="greedy" math_="math," style="text-align: left;">Algorithmic tags, e.g.</td>
+</tr>
+<tr>
+<td style="text-align: left;">created_at</td>
+<td style="text-align: left;">TIMESTAMPTZ</td>
+<td style="text-align: left;">DEFAULT now()</td>
+<td style="text-align: left;">When first added to the portal</td>
+</tr>
+<tr>
+<td style="text-align: left;">— UNIQUE —</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">(platform, external_id)</td>
+<td style="text-align: left;">Prevents duplicate problem entries</td>
+</tr>
+</tbody>
+</table>
+<h3 id="table-submissions"><strong>Table: submissions</strong><a class="headerlink" href="#table-submissions" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Column</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Constraints</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">PK, DEFAULT gen_random_uuid()</td>
+<td style="text-align: left;">Submission ID</td>
+</tr>
+<tr>
+<td style="text-align: left;">user_id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">NOT NULL, FK → users.id ON DELETE CASCADE</td>
+<td style="text-align: left;">The submitting user</td>
+</tr>
+<tr>
+<td style="text-align: left;">problem_id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">NOT NULL, FK → problems.id ON DELETE RESTRICT</td>
+<td style="text-align: left;">The problem solved</td>
+</tr>
+<tr>
+<td style="text-align: left;">language</td>
+<td style="text-align: left;">TEXT</td>
+<td style="text-align: left;">NOT NULL</td>
+<td style="text-align: left;">e.g. C++, Python, Java</td>
+</tr>
+<tr>
+<td style="text-align: left;">code</td>
+<td style="text-align: left;">TEXT</td>
+<td style="text-align: left;">NOT NULL</td>
+<td style="text-align: left;">Raw accepted source code</td>
+</tr>
+<tr>
+<td style="text-align: left;">is_contest</td>
+<td style="text-align: left;">BOOLEAN</td>
+<td style="text-align: left;">NOT NULL, DEFAULT false</td>
+<td style="text-align: left;">True if submitted during a tracked contest</td>
+</tr>
+<tr>
+<td style="text-align: left;">contest_id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">NULLABLE, FK → contests.id</td>
+<td style="text-align: left;">Associated contest (when is_contest \= true)</td>
+</tr>
+<tr>
+<td style="text-align: left;">source</td>
+<td style="text-align: left;">TEXT</td>
+<td style="text-align: left;">NOT NULL, DEFAULT 'manual'</td>
+<td style="text-align: left;">'manual' or 'extension'</td>
+</tr>
+<tr>
+<td style="text-align: left;">submitted_at</td>
+<td style="text-align: left;">TIMESTAMPTZ</td>
+<td style="text-align: left;">DEFAULT now()</td>
+<td style="text-align: left;">Submission timestamp</td>
+</tr>
+</tbody>
+</table>
+<h3 id="table-contests"><strong>Table: contests</strong><a class="headerlink" href="#table-contests" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Column</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Constraints</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">PK, DEFAULT gen_random_uuid()</td>
+<td style="text-align: left;">Internal contest ID</td>
+</tr>
+<tr>
+<td style="text-align: left;">name</td>
+<td style="text-align: left;">TEXT</td>
+<td style="text-align: left;">NOT NULL</td>
+<td style="text-align: left;">Contest display name</td>
+</tr>
+<tr>
+<td style="text-align: left;">platform</td>
+<td style="text-align: left;">platform_type</td>
+<td style="text-align: left;">NOT NULL, DEFAULT 'CODEFORCES'</td>
+<td style="text-align: left;">Source platform</td>
+</tr>
+<tr>
+<td style="text-align: left;">external_id</td>
+<td style="text-align: left;">TEXT</td>
+<td style="text-align: left;">NOT NULL, UNIQUE</td>
+<td style="text-align: left;">Codeforces contest ID, e.g. 1932</td>
+</tr>
+<tr>
+<td style="text-align: left;">held_at</td>
+<td style="text-align: left;">TIMESTAMPTZ</td>
+<td style="text-align: left;">NOT NULL</td>
+<td style="text-align: left;">When the contest took place</td>
+</tr>
+<tr>
+<td style="text-align: left;">synced_at</td>
+<td style="text-align: left;">TIMESTAMPTZ</td>
+<td style="text-align: left;">DEFAULT now()</td>
+<td style="text-align: left;">Last fetch from Codeforces</td>
+</tr>
+<tr>
+<td style="text-align: left;">created_at</td>
+<td style="text-align: left;">TIMESTAMPTZ</td>
+<td style="text-align: left;">DEFAULT now()</td>
+<td style="text-align: left;">Row creation timestamp</td>
+</tr>
+</tbody>
+</table>
+<h3 id="table-contest_standings"><strong>Table: contest_standings</strong><a class="headerlink" href="#table-contest_standings" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Column</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Constraints</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">PK, DEFAULT gen_random_uuid()</td>
+<td style="text-align: left;">Primary key</td>
+</tr>
+<tr>
+<td style="text-align: left;">contest_id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">NOT NULL, FK → contests.id ON DELETE CASCADE</td>
+<td style="text-align: left;">The contest</td>
+</tr>
+<tr>
+<td style="text-align: left;">user_id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">NOT NULL, FK → users.id ON DELETE CASCADE</td>
+<td style="text-align: left;">The participant</td>
+</tr>
+<tr>
+<td style="text-align: left;">rank</td>
+<td style="text-align: left;">INTEGER</td>
+<td style="text-align: left;">NOT NULL</td>
+<td style="text-align: left;">Final contest rank</td>
+</tr>
+<tr>
+<td style="text-align: left;">old_rating</td>
+<td style="text-align: left;">INTEGER</td>
+<td style="text-align: left;">NULLABLE</td>
+<td style="text-align: left;">Codeforces rating before contest</td>
+</tr>
+<tr>
+<td style="text-align: left;">new_rating</td>
+<td style="text-align: left;">INTEGER</td>
+<td style="text-align: left;">NULLABLE</td>
+<td style="text-align: left;">Codeforces rating after contest</td>
+</tr>
+<tr>
+<td style="text-align: left;">problems_solved</td>
+<td style="text-align: left;">INTEGER</td>
+<td style="text-align: left;">NOT NULL, DEFAULT 0</td>
+<td style="text-align: left;">Count solved during contest</td>
+</tr>
+<tr>
+<td style="text-align: left;">upsolved_count</td>
+<td style="text-align: left;">INTEGER</td>
+<td style="text-align: left;">NOT NULL, DEFAULT 0</td>
+<td style="text-align: left;">Count solved after contest</td>
+</tr>
+<tr>
+<td style="text-align: left;">— UNIQUE —</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">(contest_id, user_id)</td>
+<td style="text-align: left;">One standing per user per contest</td>
+</tr>
+</tbody>
+</table>
+<h3 id="table-squad_tracks"><strong>Table: squad_tracks</strong><a class="headerlink" href="#table-squad_tracks" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Column</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Constraints</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">PK, DEFAULT gen_random_uuid()</td>
+<td style="text-align: left;">Primary key</td>
+</tr>
+<tr>
+<td style="text-align: left;">squad_id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">NOT NULL, FK → squads.id ON DELETE CASCADE</td>
+<td style="text-align: left;">Owning squad</td>
+</tr>
+<tr>
+<td style="text-align: left;">title</td>
+<td style="text-align: left;">TEXT</td>
+<td style="text-align: left;">NOT NULL</td>
+<td style="text-align: left;">Track name, e.g. "Python Foundations"</td>
+</tr>
+<tr>
+<td style="text-align: left;">created_at</td>
+<td style="text-align: left;">TIMESTAMPTZ</td>
+<td style="text-align: left;">DEFAULT now()</td>
+<td style="text-align: left;">Creation timestamp</td>
+</tr>
+</tbody>
+</table>
+<h3 id="table-squad_track_topics"><strong>Table: squad_track_topics</strong><a class="headerlink" href="#table-squad_track_topics" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Column</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Constraints</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">PK, DEFAULT gen_random_uuid()</td>
+<td style="text-align: left;">Primary key</td>
+</tr>
+<tr>
+<td style="text-align: left;">track_id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">NOT NULL, FK → squad_tracks.id ON DELETE CASCADE</td>
+<td style="text-align: left;">Parent track</td>
+</tr>
+<tr>
+<td style="text-align: left;">title</td>
+<td style="text-align: left;">TEXT</td>
+<td style="text-align: left;">NOT NULL</td>
+<td style="text-align: left;">Topic name, e.g. "Hashmaps", "DP Basics"</td>
+</tr>
+<tr>
+<td style="text-align: left;">order_index</td>
+<td style="text-align: left;">INTEGER</td>
+<td style="text-align: left;">NOT NULL, DEFAULT 0</td>
+<td style="text-align: left;">Display order within a track</td>
+</tr>
+<tr>
+<td style="text-align: left;">created_at</td>
+<td style="text-align: left;">TIMESTAMPTZ</td>
+<td style="text-align: left;">DEFAULT now()</td>
+<td style="text-align: left;">Creation timestamp</td>
+</tr>
+</tbody>
+</table>
+<h3 id="table-topic_problems"><strong>Table: topic_problems</strong><a class="headerlink" href="#table-topic_problems" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Column</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Constraints</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">topic_id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">NOT NULL, FK → squad_track_topics.id ON DELETE CASCADE</td>
+<td style="text-align: left;">Parent topic</td>
+</tr>
+<tr>
+<td style="text-align: left;">problem_id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">NOT NULL, FK → problems.id ON DELETE CASCADE</td>
+<td style="text-align: left;">Linked problem</td>
+</tr>
+<tr>
+<td style="text-align: left;">added_at</td>
+<td style="text-align: left;">TIMESTAMPTZ</td>
+<td style="text-align: left;">DEFAULT now()</td>
+<td style="text-align: left;">When the problem was added</td>
+</tr>
+<tr>
+<td style="text-align: left;">— PK —</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">(topic_id, problem_id)</td>
+<td style="text-align: left;">Composite primary key</td>
+</tr>
+</tbody>
+</table>
+<h3 id="table-editorials"><strong>Table: editorials</strong><a class="headerlink" href="#table-editorials" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Column</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Constraints</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">PK, DEFAULT gen_random_uuid()</td>
+<td style="text-align: left;">Primary key</td>
+</tr>
+<tr>
+<td style="text-align: left;">problem_id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">NOT NULL, FK → problems.id ON DELETE CASCADE</td>
+<td style="text-align: left;">Problem this covers</td>
+</tr>
+<tr>
+<td style="text-align: left;">user_id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">NOT NULL, FK → users.id ON DELETE CASCADE</td>
+<td style="text-align: left;">Author</td>
+</tr>
+<tr>
+<td style="text-align: left;">content_md</td>
+<td style="text-align: left;">TEXT</td>
+<td style="text-align: left;">NOT NULL</td>
+<td style="text-align: left;">Full editorial in Markdown format</td>
+</tr>
+<tr>
+<td style="text-align: left;">created_at</td>
+<td style="text-align: left;">TIMESTAMPTZ</td>
+<td style="text-align: left;">DEFAULT now()</td>
+<td style="text-align: left;">Submission timestamp</td>
+</tr>
+</tbody>
+</table>
+<h3 id="table-announcements"><strong>Table: announcements</strong><a class="headerlink" href="#table-announcements" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Column</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Constraints</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">PK, DEFAULT gen_random_uuid()</td>
+<td style="text-align: left;">Primary key</td>
+</tr>
+<tr>
+<td style="text-align: left;">author_id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">NOT NULL, FK → users.id</td>
+<td style="text-align: left;">The user who created the announcement</td>
+</tr>
+<tr>
+<td style="text-align: left;">squad_id</td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">NULLABLE, FK → squads.id</td>
+<td style="text-align: left;">NULL \= global; non-null \= squad-scoped</td>
+</tr>
+<tr>
+<td style="text-align: left;">title</td>
+<td style="text-align: left;">TEXT</td>
+<td style="text-align: left;">NOT NULL</td>
+<td style="text-align: left;">Announcement headline</td>
+</tr>
+<tr>
+<td style="text-align: left;">body</td>
+<td style="text-align: left;">TEXT</td>
+<td style="text-align: left;">NOT NULL</td>
+<td style="text-align: left;">Body content (Markdown supported)</td>
+</tr>
+<tr>
+<td style="text-align: left;">created_at</td>
+<td style="text-align: left;">TIMESTAMPTZ</td>
+<td style="text-align: left;">DEFAULT now()</td>
+<td style="text-align: left;">Publish timestamp</td>
+</tr>
+</tbody>
+</table>
+<h2 id="53-row-level-security-policies"><strong>5.3  Row Level Security Policies</strong><a class="headerlink" href="#53-row-level-security-policies" title="Permanent link">¶</a></h2>
+<p>RLS is enabled on every table. The Go backend connects using the service_role key, which bypasses RLS for trusted server operations. The React frontend uses the user JWT and is subject to all policies below.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Table</th>
+<th style="text-align: left;">Role</th>
+<th style="text-align: left;">SELECT</th>
+<th style="text-align: left;">INSERT</th>
+<th style="text-align: left;">UPDATE</th>
+<th style="text-align: left;">DELETE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">users</td>
+<td style="text-align: left;">Any authenticated</td>
+<td style="text-align: left;">All rows</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">Own row only</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr>
+<td style="text-align: left;">users</td>
+<td style="text-align: left;">ADMIN / SUPER_ADMIN</td>
+<td style="text-align: left;">All rows</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">Any row</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr>
+<td style="text-align: left;">problems</td>
+<td style="text-align: left;">Any authenticated</td>
+<td style="text-align: left;">All rows</td>
+<td style="text-align: left;">— (Go only)</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr>
+<td style="text-align: left;">submissions</td>
+<td style="text-align: left;">Any authenticated</td>
+<td style="text-align: left;">All rows</td>
+<td style="text-align: left;">Own user_id, not banned</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr>
+<td style="text-align: left;">contests</td>
+<td style="text-align: left;">Any authenticated</td>
+<td style="text-align: left;">All rows</td>
+<td style="text-align: left;">— (Go only)</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr>
+<td style="text-align: left;">contest_standings</td>
+<td style="text-align: left;">Any authenticated</td>
+<td style="text-align: left;">All rows</td>
+<td style="text-align: left;">— (Go only)</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr>
+<td style="text-align: left;">editorials</td>
+<td style="text-align: left;">Any authenticated</td>
+<td style="text-align: left;">All rows</td>
+<td style="text-align: left;">Own user_id</td>
+<td style="text-align: left;">Own row</td>
+<td style="text-align: left;">Own row</td>
+</tr>
+<tr>
+<td style="text-align: left;">squad_tracks</td>
+<td style="text-align: left;">SQUAD_LEAD</td>
+<td style="text-align: left;">All rows</td>
+<td style="text-align: left;">Own squad only</td>
+<td style="text-align: left;">Own squad only</td>
+<td style="text-align: left;">Own squad only</td>
+</tr>
+<tr>
+<td style="text-align: left;">squad_track_topics</td>
+<td style="text-align: left;">SQUAD_LEAD</td>
+<td style="text-align: left;">All rows</td>
+<td style="text-align: left;">Own squad only</td>
+<td style="text-align: left;">Own squad only</td>
+<td style="text-align: left;">Own squad only</td>
+</tr>
+<tr>
+<td style="text-align: left;">topic_problems</td>
+<td style="text-align: left;">SQUAD_LEAD</td>
+<td style="text-align: left;">All rows</td>
+<td style="text-align: left;">Own squad only</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">Own squad only</td>
+</tr>
+<tr>
+<td style="text-align: left;">announcements</td>
+<td style="text-align: left;">Any authenticated</td>
+<td style="text-align: left;">Global + own squad</td>
+<td style="text-align: left;">— (Go only)</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr>
+<td style="text-align: left;">system_settings</td>
+<td style="text-align: left;">SUPER_ADMIN</td>
+<td style="text-align: left;">All rows</td>
+<td style="text-align: left;">All rows</td>
+<td style="text-align: left;">All rows</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr>
+<td style="text-align: left;">invitations</td>
+<td style="text-align: left;">ADMIN / SUPER_ADMIN</td>
+<td style="text-align: left;">All rows</td>
+<td style="text-align: left;">All rows</td>
+<td style="text-align: left;">All rows</td>
+<td style="text-align: left;">—</td>
+</tr>
+</tbody>
+</table>
+<h1 id="6-authentication-authorization"><strong>6. Authentication &amp; Authorization</strong><a class="headerlink" href="#6-authentication-authorization" title="Permanent link">¶</a></h1>
+<h2 id="61-core-principles"><strong>6.1  Core Principles</strong><a class="headerlink" href="#61-core-principles" title="Permanent link">¶</a></h2>
+<ul>
+<li>
+<p>All authentication state is owned by Supabase Auth. No custom session management is implemented.</p>
+</li>
+<li>
+<p>auth.users is the source of truth for identity. public.users stores extended profile metadata, kept in sync via a database trigger on auth.users insert.</p>
+</li>
+<li>
+<p>The Go backend validates requests by verifying the Supabase-issued JWT using the SUPABASE_JWT_SECRET environment variable (HMAC-SHA256).</p>
+</li>
+<li>
+<p>The sub claim in the JWT is used as the user_id for all write operations. The client never sends a user_id in request body for protected endpoints.</p>
+</li>
+</ul>
+<h2 id="62-registration-invitation-flow"><strong>6.2  Registration &amp; Invitation Flow</strong><a class="headerlink" href="#62-registration-invitation-flow" title="Permanent link">¶</a></h2>
+<h3 id="path-a-public-signup-when-enabled-by-super-admin"><strong>Path A — Public Signup (when enabled by Super Admin)</strong><a class="headerlink" href="#path-a-public-signup-when-enabled-by-super-admin" title="Permanent link">¶</a></h3>
+<ol>
+<li>
+<p>Frontend checks GET /api/system/signup-status.</p>
+</li>
+<li>
+<p>If signup_open \= true, user fills email on /signup.</p>
+</li>
+<li>
+<p>Frontend calls supabase.auth.signUp({ email, password }) or magic link.</p>
+</li>
+<li>
+<p>Supabase Auth trigger creates a stub row in public.users with role \= 'COMMUNITY' and is_active \= false.</p>
+</li>
+<li>
+<p>User is redirected to /complete-profile.</p>
+</li>
+</ol>
+<h3 id="path-b-admin-invitation-default-primary-path"><strong>Path B — Admin Invitation (default / primary path)</strong><a class="headerlink" href="#path-b-admin-invitation-default-primary-path" title="Permanent link">¶</a></h3>
+<ol>
+<li>
+<p>Admin navigates to Admin Dashboard → Invitations tab.</p>
+</li>
+<li>
+<p>Admin enters target email. The Go backend generates a cryptographically random 32-byte hex token, stores it in invitations with a 72-hour expiry, and sends an email containing a link to /invite?token=abc123.</p>
+</li>
+<li>
+<p>User visits /invite?token=abc123.</p>
+</li>
+<li>
+<p>Frontend validates token via GET /api/invite/validate?token=abc123. Returns the locked email or an error.</p>
+</li>
+<li>
+<p>If valid, the signup form is pre-filled and locked to that email.</p>
+</li>
+<li>
+<p>On successful supabase.auth.signUp(), the Go backend marks invitations.used_at \= now().</p>
+</li>
+<li>
+<p>User is redirected to /complete-profile.</p>
+</li>
+</ol>
+<h2 id="63-profile-completion-flow"><strong>6.3  Profile Completion Flow</strong><a class="headerlink" href="#63-profile-completion-flow" title="Permanent link">¶</a></h2>
+<p>A new user account is considered INACTIVE until mandatory profile fields are submitted. An inactive user is locked to the /complete-profile route exclusively.</p>
+<p>Mandatory fields at profile completion:</p>
+<ul>
+<li>
+<p>Full Name</p>
+</li>
+<li>
+<p>Telegram Handle</p>
+</li>
+<li>
+<p>Codeforces Handle (required — used for contest matching and standings sync)</p>
+</li>
+<li>
+<p>LeetCode Handle (optional)</p>
+</li>
+<li>
+<p>AtCoder Handle (optional)</p>
+</li>
+</ul>
+<p>On successful form submission, the Go backend sets is_active \= true and role \= 'COMMUNITY' in public.users. The user is then redirected to /dashboard.</p>
+<h2 id="64-role-hierarchy-permission-matrix"><strong>6.4  Role Hierarchy &amp; Permission Matrix</strong><a class="headerlink" href="#64-role-hierarchy-permission-matrix" title="Permanent link">¶</a></h2>
+<p><strong>Roles in ascending privilege order: COMMUNITY \&lt; SQUAD_MEMBER \&lt; SQUAD_LEAD \&lt; ADMIN \&lt; SUPER_ADMIN</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Permission</th>
+<th style="text-align: left;">COM</th>
+<th style="text-align: left;">MBR</th>
+<th style="text-align: left;">LEAD</th>
+<th style="text-align: left;">ADMIN</th>
+<th style="text-align: left;">S_ADMIN</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">View problems &amp; submissions</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;">Submit code (manual or extension)</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;">Write editorials</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;">View global announcements</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;">View squad announcements (own squad)</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;">Post squad announcements (own squad)</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;">Post global announcements</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;">Manage squad curriculum (own squad)</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;">Add COMMUNITY users to own squad</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;">Generate invitations</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;">Ban / unban users</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;">Assign roles (up to SQUAD_LEAD)</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;">Assign roles (up to ADMIN)</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;">Sync Codeforces contests (own squad)</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+<td style="text-align: left;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;">Toggle signup_open</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">❌</td>
+<td style="text-align: left;">✅</td>
+</tr>
+</tbody>
+</table>
+<p>COM \= COMMUNITY  |  MBR \= SQUAD_MEMBER  |  LEAD \= SQUAD_LEAD  |  S_ADMIN \= SUPER_ADMIN</p>
+<h2 id="65-route-protection-strategy-frontend"><strong>6.5  Route Protection Strategy (Frontend)</strong><a class="headerlink" href="#65-route-protection-strategy-frontend" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">User State</th>
+<th style="text-align: left;">Attempted Route</th>
+<th style="text-align: left;">Outcome</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Unauthenticated</td>
+<td style="text-align: left;">Any protected route</td>
+<td style="text-align: left;">Redirect → /login</td>
+</tr>
+<tr>
+<td style="text-align: left;">Authenticated, is_active \= false</td>
+<td style="text-align: left;">Any except /complete-profile</td>
+<td style="text-align: left;">Redirect → /complete-profile</td>
+</tr>
+<tr>
+<td style="text-align: left;">Authenticated, is_active \= true</td>
+<td style="text-align: left;">/complete-profile</td>
+<td style="text-align: left;">Redirect → /dashboard</td>
+</tr>
+<tr>
+<td style="text-align: left;">Authenticated, active, wrong role</td>
+<td style="text-align: left;">/admin/* without ADMIN role</td>
+<td style="text-align: left;">Redirect → /dashboard</td>
+</tr>
+<tr>
+<td style="text-align: left;">Authenticated, active, correct role</td>
+<td style="text-align: left;">Any allowed route</td>
+<td style="text-align: left;">Render normally</td>
+</tr>
+</tbody>
+</table>
+<h1 id="7-backend-design-go-clean-architecture"><strong>7. Backend Design (Go — Clean Architecture)</strong><a class="headerlink" href="#7-backend-design-go-clean-architecture" title="Permanent link">¶</a></h1>
+<h2 id="71-directory-structure"><strong>7.1  Directory Structure</strong><a class="headerlink" href="#71-directory-structure" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">backend/</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">├── cmd/server/main.go                  # Entry point: wire deps, start server</td>
+</tr>
+<tr>
+<td style="text-align: left;">├── internal/</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   ├── domain/</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   ├── models.go                   # Entities: User, Problem, Submission, etc.</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   ├── enums.go                    # Go constants mirroring DB enums</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   └── repository.go               # Repository interfaces (contracts)</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   ├── usecase/</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   ├── submission_uc.go            # Submit problem, upsert, update stats</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   ├── contest_uc.go               # Sync CF contest, list, get standings</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   ├── squad_uc.go                 # Manage tracks, topics, problems</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   ├── user_uc.go                  # Profile completion, user queries</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   ├── admin_uc.go                 # Role management, bans, invitations</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   ├── editorial_uc.go             # Create &amp; list editorials</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   └── verse_uc.go                 # Fetch &amp; cache daily Bible verse</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   ├── repository/postgres/</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   ├── db.go                       # pgxpool connection setup</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   ├── user_repo.go</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   ├── problem_repo.go</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   ├── submission_repo.go</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   ├── contest_repo.go</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   ├── squad_repo.go</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   ├── editorial_repo.go</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   └── announcement_repo.go</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   ├── delivery/http/</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   ├── server.go                   # Echo router setup, route registration</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   ├── middleware.go               # JWT auth + role guard middleware</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   ├── context.go                  # UserIDFromContext, etc.</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   └── [feature]_handler.go        # One handler file per feature</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   ├── pkg/codeforces/client.go        # HTTP client for Codeforces API</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   └── config/config.go                # Env var loading</td>
+</tr>
+<tr>
+<td style="text-align: left;">├── Dockerfile</td>
+</tr>
+<tr>
+<td style="text-align: left;">├── .env.example</td>
+</tr>
+<tr>
+<td style="text-align: left;">└── go.mod</td>
+</tr>
+</tbody>
+</table>
+<h2 id="72-core-use-cases"><strong>7.2  Core Use Cases</strong><a class="headerlink" href="#72-core-use-cases" title="Permanent link">¶</a></h2>
+<h3 id="uc-01-problem-submission"><strong>UC-01: Problem Submission</strong><a class="headerlink" href="#uc-01-problem-submission" title="Permanent link">¶</a></h3>
+<p>Triggered by: Extension POST or manual POST to /api/submissions</p>
+<ol>
+<li>
+<p>Validate JWT. Extract user_id from token claims.</p>
+</li>
+<li>
+<p>Fetch user from DB. Verify is_banned \= false and is_active \= true. Return 403 if either fails.</p>
+</li>
+<li>
+<p>Look up problems by (platform, external_id). If not found, UPSERT a new problem using name and link from the request payload.</p>
+</li>
+<li>
+<p>Insert a new row into submissions.</p>
+</li>
+<li>
+<p>Invoke UpdateUserStats: if (user_id, problem_id) pair is new, increment problem_count. Compare last_submission_date: same day \= no change; yesterday \= increment streak; older/null \= reset streak to 1. Update last_submission_date \= today.</p>
+</li>
+<li>
+<p>Return 201 Created with submission ID and updated user stats.</p>
+</li>
+</ol>
+<h3 id="uc-02-codeforces-contest-sync"><strong>UC-02: Codeforces Contest Sync</strong><a class="headerlink" href="#uc-02-codeforces-contest-sync" title="Permanent link">¶</a></h3>
+<p>Triggered by: Squad Lead POST to /api/squads/:squadID/contests/sync, or Admin POST to /api/admin/contests/sync</p>
+<ol>
+<li>
+<p>Verify caller has SQUAD_LEAD (and their squad_id matches the URL) or ADMIN / SUPER_ADMIN role.</p>
+</li>
+<li>
+<p>Call Codeforces API: contest.standings?contestId={id}\&amp;showUnofficial=false with a 15-second timeout.</p>
+</li>
+<li>
+<p>Parse response. Extract contest metadata and participant rows.</p>
+</li>
+<li>
+<p>Upsert the contests row (keyed on external_id).</p>
+</li>
+<li>
+<p>For each CF participant, look up matching users row by codeforces_handle. Skip unmatched participants silently.</p>
+</li>
+<li>
+<p>Upsert contest_standings rows for matched users.</p>
+</li>
+<li>
+<p>Identify problems unsolved during contest for matched users — populates the upsolve view.</p>
+</li>
+<li>
+<p>Return sync summary: { matched_users: N, standings_saved: M, contest_id: "..." }.</p>
+</li>
+</ol>
+<h3 id="uc-03-squad-track-management"><strong>UC-03: Squad Track Management</strong><a class="headerlink" href="#uc-03-squad-track-management" title="Permanent link">¶</a></h3>
+<p>Triggered by: Squad Lead via /api/squads/{id}/tracks</p>
+<ol>
+<li>
+<p>JWT middleware extracts user. Role guard verifies role \== SQUAD_LEAD.</p>
+</li>
+<li>
+<p>Validate caller's squad_id matches the squad_id in the URL parameter. Return 403 if mismatched.</p>
+</li>
+<li>
+<p>Execute the requested operation (create track / add topic / assign problem).</p>
+</li>
+</ol>
+<h3 id="uc-04-daily-verse"><strong>UC-04: Daily Verse</strong><a class="headerlink" href="#uc-04-daily-verse" title="Permanent link">¶</a></h3>
+<p>Triggered by: GET /api/verse</p>
+<ol>
+<li>
+<p>Check in-memory cache. If a verse was fetched within the last 24 hours, return it immediately.</p>
+</li>
+<li>
+<p>Otherwise, call the external Bible Verse API. On failure, return the last known cached verse.</p>
+</li>
+<li>
+<p>Update the cache with the new verse and timestamp.</p>
+</li>
+<li>
+<p>Return { text: "...", reference: "..." }.</p>
+</li>
+</ol>
+<h2 id="73-rest-api-endpoint-reference"><strong>7.3  REST API Endpoint Reference</strong><a class="headerlink" href="#73-rest-api-endpoint-reference" title="Permanent link">¶</a></h2>
+<h3 id="public-endpoints-no-auth-required"><strong>Public Endpoints (No Auth Required)</strong><a class="headerlink" href="#public-endpoints-no-auth-required" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">Path</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">GET</td>
+<td style="text-align: left;">/api/healthz</td>
+<td style="text-align: left;">Health check. Returns {"status":"ok"}.</td>
+</tr>
+<tr>
+<td style="text-align: left;">GET</td>
+<td style="text-align: left;">/api/verse</td>
+<td style="text-align: left;">Returns the cached daily Bible verse.</td>
+</tr>
+<tr>
+<td style="text-align: left;">GET</td>
+<td style="text-align: left;">/api/system/signup-status</td>
+<td style="text-align: left;">Returns whether public signup is enabled.</td>
+</tr>
+<tr>
+<td style="text-align: left;">GET</td>
+<td style="text-align: left;">/api/invite/validate</td>
+<td style="text-align: left;">Validates an invite token. Query param: ?token=</td>
+</tr>
+<tr>
+<td style="text-align: left;">GET</td>
+<td style="text-align: left;">/api/announcements/public</td>
+<td style="text-align: left;">Returns the N most recent global announcements. Used by the landing page.</td>
+</tr>
+<tr>
+<td style="text-align: left;">GET</td>
+<td style="text-align: left;">/api/stats/public</td>
+<td style="text-align: left;">Returns total member count, total problems solved, total contests. Used by landing page.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="authenticated-endpoints-any-active-non-banned-user"><strong>Authenticated Endpoints (Any Active, Non-Banned User)</strong><a class="headerlink" href="#authenticated-endpoints-any-active-non-banned-user" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">Path</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">GET</td>
+<td style="text-align: left;">/api/users/:userID</td>
+<td style="text-align: left;">Get user profile with computed badges.</td>
+</tr>
+<tr>
+<td style="text-align: left;">PUT</td>
+<td style="text-align: left;">/api/users/me</td>
+<td style="text-align: left;">Update own profile (bio, handles, telegram).</td>
+</tr>
+<tr>
+<td style="text-align: left;">POST</td>
+<td style="text-align: left;">/api/users/me/complete-profile</td>
+<td style="text-align: left;">Submit mandatory profile fields → sets is_active \= true.</td>
+</tr>
+<tr>
+<td style="text-align: left;">GET</td>
+<td style="text-align: left;">/api/problems</td>
+<td style="text-align: left;">List all problems. Optional: ?platform=\&amp;tag=</td>
+</tr>
+<tr>
+<td style="text-align: left;">POST</td>
+<td style="text-align: left;">/api/submissions</td>
+<td style="text-align: left;">Create a submission (manual or extension).</td>
+</tr>
+<tr>
+<td style="text-align: left;">GET</td>
+<td style="text-align: left;">/api/submissions/:submissionID</td>
+<td style="text-align: left;">Get a single submission with code and metadata.</td>
+</tr>
+<tr>
+<td style="text-align: left;">GET</td>
+<td style="text-align: left;">/api/users/:userID/submissions</td>
+<td style="text-align: left;">Get paginated submissions for a user.</td>
+</tr>
+<tr>
+<td style="text-align: left;">GET</td>
+<td style="text-align: left;">/api/contests</td>
+<td style="text-align: left;">List all synced contests.</td>
+</tr>
+<tr>
+<td style="text-align: left;">GET</td>
+<td style="text-align: left;">/api/contests/:contestID/standings</td>
+<td style="text-align: left;">Get standings (includes upsolve info).</td>
+</tr>
+<tr>
+<td style="text-align: left;">GET</td>
+<td style="text-align: left;">/api/editorials</td>
+<td style="text-align: left;">List editorials. Query: ?problem_id=</td>
+</tr>
+<tr>
+<td style="text-align: left;">POST</td>
+<td style="text-align: left;">/api/editorials</td>
+<td style="text-align: left;">Create an editorial (Markdown body).</td>
+</tr>
+<tr>
+<td style="text-align: left;">GET</td>
+<td style="text-align: left;">/api/squads/:squadID/tracks</td>
+<td style="text-align: left;">Get full curriculum tree for a squad.</td>
+</tr>
+<tr>
+<td style="text-align: left;">GET</td>
+<td style="text-align: left;">/api/announcements</td>
+<td style="text-align: left;">List announcements visible to the caller.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="squad-lead-endpoints"><strong>Squad Lead Endpoints</strong><a class="headerlink" href="#squad-lead-endpoints" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">Path</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">POST</td>
+<td style="text-align: left;">/api/squads/:squadID/tracks</td>
+<td style="text-align: left;">Create a new curriculum track.</td>
+</tr>
+<tr>
+<td style="text-align: left;">POST</td>
+<td style="text-align: left;">/api/tracks/:trackID/topics</td>
+<td style="text-align: left;">Add a topic to a track.</td>
+</tr>
+<tr>
+<td style="text-align: left;">POST</td>
+<td style="text-align: left;">/api/topics/:topicID/problems</td>
+<td style="text-align: left;">Assign a problem to a topic.</td>
+</tr>
+<tr>
+<td style="text-align: left;">POST</td>
+<td style="text-align: left;">/api/announcements</td>
+<td style="text-align: left;">Post a squad-scoped announcement.</td>
+</tr>
+<tr>
+<td style="text-align: left;">POST</td>
+<td style="text-align: left;">/api/squads/:squadID/contests/sync</td>
+<td _contest_95_id_:_1932_="&quot;contest_id&quot;:&quot;1932&quot;" style="text-align: left;">Sync a Codeforces contest for own squad. Body:</td>
+</tr>
+</tbody>
+</table>
+<h3 id="admin-super-admin-endpoints"><strong>Admin &amp; Super Admin Endpoints</strong><a class="headerlink" href="#admin-super-admin-endpoints" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">Path</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">GET</td>
+<td style="text-align: left;">/api/admin/users</td>
+<td style="text-align: left;">List all users with full metadata.</td>
+</tr>
+<tr>
+<td style="text-align: left;">PUT</td>
+<td style="text-align: left;">/api/admin/users/:userID/role</td>
+<td _role_:_squad_95_lead_="&quot;role&quot;:&quot;SQUAD_LEAD&quot;" style="text-align: left;">Update a user's role. Body:</td>
+</tr>
+<tr>
+<td style="text-align: left;">PUT</td>
+<td style="text-align: left;">/api/admin/users/:userID/squad</td>
+<td _squad_95_id_:_..._="&quot;squad_id&quot;:&quot;...&quot;" style="text-align: left;">Assign user to a squad. Body:</td>
+</tr>
+<tr>
+<td style="text-align: left;">PUT</td>
+<td style="text-align: left;">/api/admin/users/:userID/ban</td>
+<td _is_95_banned_:true="&quot;is_banned&quot;:true" style="text-align: left;">Ban or unban a user. Body:</td>
+</tr>
+<tr>
+<td style="text-align: left;">POST</td>
+<td style="text-align: left;">/api/admin/invitations</td>
+<td _email_:_..._="&quot;email&quot;:&quot;...&quot;" style="text-align: left;">Generate an invitation. Body:</td>
+</tr>
+<tr>
+<td style="text-align: left;">POST</td>
+<td style="text-align: left;">/api/admin/contests/sync</td>
+<td _contest_95_id_:_1932_="&quot;contest_id&quot;:&quot;1932&quot;" style="text-align: left;">Sync any Codeforces contest (cross-squad). Body:</td>
+</tr>
+<tr>
+<td style="text-align: left;">POST</td>
+<td style="text-align: left;">/api/admin/announcements</td>
+<td style="text-align: left;">Post a global announcement.</td>
+</tr>
+<tr>
+<td style="text-align: left;">PUT</td>
+<td style="text-align: left;">/api/admin/system/signup</td>
+<td _open_:true="&quot;open&quot;:true" style="text-align: left;">(Super Admin only) Toggle</td>
+</tr>
+</tbody>
+</table>
+<h2 id="74-background-services"><strong>7.4  Background Services</strong><a class="headerlink" href="#74-background-services" title="Permanent link">¶</a></h2>
+<h3 id="daily-verse-cache"><strong>Daily Verse Cache</strong><a class="headerlink" href="#daily-verse-cache" title="Permanent link">¶</a></h3>
+<p>A simple in-memory struct guarded by a sync.RWMutex, holding the last fetched verse text, reference, and fetch timestamp. All requests to GET /api/verse read from this cache. A background goroutine refreshes it every 24 hours. On startup, the cache is populated immediately before the HTTP server starts accepting requests, ensuring the first request is never a cache miss.</p>
+<h2 id="75-deployment-docker"><strong>7.5  Deployment (Docker)</strong><a class="headerlink" href="#75-deployment-docker" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"># backend/Dockerfile</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">FROM golang:1.21-alpine AS builder</td>
+</tr>
+<tr>
+<td style="text-align: left;">WORKDIR /app</td>
+</tr>
+<tr>
+<td style="text-align: left;">COPY go.mod go.sum ./</td>
+</tr>
+<tr>
+<td style="text-align: left;">RUN go mod download</td>
+</tr>
+<tr>
+<td style="text-align: left;">COPY . .</td>
+</tr>
+<tr>
+<td style="text-align: left;">RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o server cmd/server/main.go</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">FROM alpine:3.19</td>
+</tr>
+<tr>
+<td style="text-align: left;">RUN apk add --no-cache ca-certificates</td>
+</tr>
+<tr>
+<td style="text-align: left;">WORKDIR /app</td>
+</tr>
+<tr>
+<td style="text-align: left;">COPY --from=builder /app/server .</td>
+</tr>
+<tr>
+<td style="text-align: left;">HEALTHCHECK --interval=30s --timeout=5s --start-period=10s \</td>
+</tr>
+<tr>
+<td style="text-align: left;">CMD wget -qO- http://localhost:8080/api/healthz</td>
+</tr>
+<tr>
+<td style="text-align: left;">EXPOSE 8080</td>
+</tr>
+<tr>
+<td style="text-align: left;">CMD ["./server"]</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"># docker-compose.yml</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">version: "3.9"</td>
+</tr>
+<tr>
+<td style="text-align: left;">services:</td>
+</tr>
+<tr>
+<td style="text-align: left;">backend:</td>
+</tr>
+<tr>
+<td style="text-align: left;">build: ./backend</td>
+</tr>
+<tr>
+<td style="text-align: left;">env_file: ./backend/.env</td>
+</tr>
+<tr>
+<td style="text-align: left;">restart: unless-stopped</td>
+</tr>
+<tr>
+<td style="text-align: left;">frontend:</td>
+</tr>
+<tr>
+<td style="text-align: left;">build: ./frontend</td>
+</tr>
+<tr>
+<td style="text-align: left;">ports:</td>
+</tr>
+<tr>
+<td style="text-align: left;">- "3000:80"</td>
+</tr>
+<tr>
+<td style="text-align: left;">depends_on:</td>
+</tr>
+<tr>
+<td style="text-align: left;">backend:</td>
+</tr>
+<tr>
+<td style="text-align: left;">condition: service_healthy</td>
+</tr>
+<tr>
+<td style="text-align: left;">restart: unless-stopped</td>
+</tr>
+</tbody>
+</table>
+<h1 id="8-frontend-design-react-vite"><strong>8. Frontend Design (React + Vite)</strong><a class="headerlink" href="#8-frontend-design-react-vite" title="Permanent link">¶</a></h1>
+<h2 id="81-architecture-state-management"><strong>8.1  Architecture &amp; State Management</strong><a class="headerlink" href="#81-architecture-state-management" title="Permanent link">¶</a></h2>
+<p>The frontend follows a feature-first directory structure. All server state (data fetching, caching, mutations) is handled by TanStack Query. Zustand is used only for ephemeral UI state (sidebar open/closed, active tab). Authentication state is managed via a dedicated AuthContext wrapping Supabase Auth's onAuthStateChange.</p>
+<p>For simple read operations that do not require Go business logic (e.g., listing problems, reading user profiles), the frontend may query Supabase directly using the JS client, subject to RLS. This reduces load on the Go backend.</p>
+<h2 id="82-directory-structure"><strong>8.2  Directory Structure</strong><a class="headerlink" href="#82-directory-structure" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">frontend/</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">├── src/</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   ├── app/router.tsx                  # All routes, ProtectedRoute wrappers</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   ├── components/</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   ├── layout/                     # AppShell, Sidebar, Header</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   └── ui/                         # Badge, StatCard, CodeViewer, MarkdownRenderer</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   ├── features/</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   ├── landing/                    # LandingPage (public), LandingNavbar</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   ├── auth/                       # LoginPage, SignupPage, InvitePage,</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   │                               #   CompleteProfilePage, ProtectedRoute</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   ├── dashboard/                  # DashboardPage (verse + stats + activity)</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   ├── problems/                   # ProblemsPage, SubmissionViewPage,</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   │                               #   EditorialPage, ProblemFilters</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   ├── contests/                   # ContestsPage, ContestDetailPage</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   ├── profile/                    # ProfilePage (badges, handles, streaks)</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   ├── squad/                      # SquadPage (curriculum tree accordion)</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   ├── announcements/              # AnnouncementsPage</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   │   └── admin/                      # AdminPage (lazy-loaded)</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   ├── hooks/                          # useAuth, useUserProfile</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   ├── lib/                            # supabase.ts, api.ts (Axios + JWT)</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   ├── store/                          # uiStore.ts (Zustand)</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   └── main.tsx                        # QueryClientProvider, RouterProvider</td>
+</tr>
+<tr>
+<td style="text-align: left;">├── Dockerfile</td>
+</tr>
+<tr>
+<td style="text-align: left;">├── nginx.conf</td>
+</tr>
+<tr>
+<td style="text-align: left;">└── package.json</td>
+</tr>
+</tbody>
+</table>
+<h2 id="83-page-feature-inventory"><strong>8.3  Page &amp; Feature Inventory</strong><a class="headerlink" href="#83-page-feature-inventory" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Route</th>
+<th style="text-align: left;">Access</th>
+<th style="text-align: left;">Key Functionality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">/</td>
+<td style="text-align: left;">Public</td>
+<td style="text-align: left;">Landing page: hero, daily verse, global announcements feed, community stats. Public navbar with Announcements and Dashboard links.</td>
+</tr>
+<tr>
+<td style="text-align: left;">/login</td>
+<td style="text-align: left;">Public</td>
+<td style="text-align: left;">Email + magic link via Supabase Auth</td>
+</tr>
+<tr>
+<td style="text-align: left;">/signup</td>
+<td style="text-align: left;">Public (if open)</td>
+<td style="text-align: left;">Standard email signup via Supabase Auth</td>
+</tr>
+<tr>
+<td style="text-align: left;">/invite</td>
+<td style="text-align: left;">Public</td>
+<td style="text-align: left;">Token validation, locked email signup</td>
+</tr>
+<tr>
+<td style="text-align: left;">/complete-profile</td>
+<td style="text-align: left;">Auth + inactive</td>
+<td style="text-align: left;">Mandatory profile form; sets is_active \= true</td>
+</tr>
+<tr>
+<td style="text-align: left;">/dashboard</td>
+<td style="text-align: left;">Auth + active</td>
+<td style="text-align: left;">Daily verse card, personal stats, recent activity</td>
+</tr>
+<tr>
+<td style="text-align: left;">/problems</td>
+<td style="text-align: left;">Auth + active</td>
+<td style="text-align: left;">Filterable problem list with platform badges and submission accordion</td>
+</tr>
+<tr>
+<td style="text-align: left;">/submissions/:id</td>
+<td style="text-align: left;">Auth + active</td>
+<td style="text-align: left;">Syntax-highlighted code viewer with copy button</td>
+</tr>
+<tr>
+<td style="text-align: left;">/problems/:id/editorials</td>
+<td style="text-align: left;">Auth + active</td>
+<td style="text-align: left;">Read and write Markdown editorials</td>
+</tr>
+<tr>
+<td style="text-align: left;">/contests</td>
+<td style="text-align: left;">Auth + active</td>
+<td style="text-align: left;">List of synced contests with date and participant count</td>
+</tr>
+<tr>
+<td style="text-align: left;">/contests/:id</td>
+<td style="text-align: left;">Auth + active</td>
+<td style="text-align: left;">Standings table with upsolve toggle</td>
+</tr>
+<tr>
+<td style="text-align: left;">/profile/:userID</td>
+<td style="text-align: left;">Auth + active</td>
+<td style="text-align: left;">Badges, platform handles, streaks, recent submissions</td>
+</tr>
+<tr>
+<td style="text-align: left;">/squad</td>
+<td style="text-align: left;">SQUAD_MEMBER+</td>
+<td style="text-align: left;">Curriculum tree: Track → Topics → Problems</td>
+</tr>
+<tr>
+<td style="text-align: left;">/announcements</td>
+<td style="text-align: left;">Public + Auth</td>
+<td style="text-align: left;">Public: global announcements only. Authenticated: global + squad-scoped. Squad Leads and Admins see a Post button.</td>
+</tr>
+<tr>
+<td style="text-align: left;">/admin</td>
+<td style="text-align: left;">ADMIN+</td>
+<td style="text-align: left;">User management, role/squad controls, ban toggle, invitations, contest sync</td>
+</tr>
+</tbody>
+</table>
+<h2 id="84-browser-extension-integration"><strong>8.4  Browser Extension Integration</strong><a class="headerlink" href="#84-browser-extension-integration" title="Permanent link">¶</a></h2>
+<p>The portal generates a personal API Key for each user on the Settings page (/settings/extension). This key is passed as a Bearer token by the extension. The API key is stored as a SHA-256 hash in public.users and validated by the Go backend on each extension request.</p>
+<p>This approach avoids requiring the extension to manage Supabase JWTs directly and allows key revocation without affecting the user's auth session.</p>
+<h1 id="9-landing-page-navigation-model"><strong>9. Landing Page &amp; Navigation Model</strong><a class="headerlink" href="#9-landing-page-navigation-model" title="Permanent link">¶</a></h1>
+<h2 id="91-landing-page"><strong>9.1  Landing Page</strong><a class="headerlink" href="#91-landing-page" title="Permanent link">¶</a></h2>
+<p>The Landing Page is the first page any visitor sees — authenticated or not. It is fully public and requires no login. Its purpose is to give an overview of the community, surface global announcements, and display the daily Bible verse.</p>
+<h3 id="911-landing-page-navbar"><strong>9.1.1  Landing Page Navbar</strong><a class="headerlink" href="#911-landing-page-navbar" title="Permanent link">¶</a></h3>
+<p>The navbar is always visible on the landing page and contains:</p>
+<ul>
+<li>
+<p>Focus ASTU CP Hub logo / wordmark (left side)</p>
+</li>
+<li>
+<p>Announcements — navigates to /announcements (public view, shows only global non-protected announcements)</p>
+</li>
+<li>
+<p>Dashboard button — navigates to /dashboard. If the user is not logged in, redirects to /login first.</p>
+</li>
+<li>
+<p>Login / Sign Up button — shown only when the user is not authenticated.</p>
+</li>
+</ul>
+<h3 id="912-landing-page-content"><strong>9.1.2  Landing Page Content</strong><a class="headerlink" href="#912-landing-page-content" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Section</th>
+<th style="text-align: left;">Content</th>
+<th style="text-align: left;">Auth Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Hero Banner</td>
+<td style="text-align: left;">Community name, tagline, and a call-to-action button ("Join" or "Go to Dashboard" depending on auth state).</td>
+<td style="text-align: left;">No</td>
+</tr>
+<tr>
+<td style="text-align: left;">Daily Verse Card</td>
+<td style="text-align: left;">Bible verse of the day fetched from the cached Go endpoint GET /api/verse. Displayed prominently with the reference.</td>
+<td style="text-align: left;">No</td>
+</tr>
+<tr>
+<td style="text-align: left;">Global Announcements Feed</td>
+<td style="text-align: left;">The 5 most recent global announcements (squad_id \= NULL). Each card shows title, a short excerpt of the body, and the date. Links to the full /announcements page.</td>
+<td style="text-align: left;">No</td>
+</tr>
+<tr>
+<td style="text-align: left;">Community Stats (optional)</td>
+<td style="text-align: left;">Simple counters: total members, total problems solved, total contests run. Fetched from a new public endpoint GET /api/stats/public.</td>
+<td style="text-align: left;">No</td>
+</tr>
+</tbody>
+</table>
+<h3 id="913-what-the-landing-page-does-not-show"><strong>9.1.3  What the Landing Page Does NOT Show</strong><a class="headerlink" href="#913-what-the-landing-page-does-not-show" title="Permanent link">¶</a></h3>
+<ul>
+<li>
+<p>Squad-scoped announcements — those are protected and only visible after login.</p>
+</li>
+<li>
+<p>Any user-specific data (profile, submissions, streaks).</p>
+</li>
+<li>
+<p>The Daily Verse card does not require authentication — the /api/verse endpoint is already public.</p>
+</li>
+</ul>
+<h2 id="92-announcements-page-announcements"><strong>9.2  Announcements Page (/announcements)</strong><a class="headerlink" href="#92-announcements-page-announcements" title="Permanent link">¶</a></h2>
+<p>The Announcements page is accessible from the landing page navbar and from the authenticated sidebar. Its content changes depending on the viewer's auth state:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Viewer State</th>
+<th style="text-align: left;">Content Shown</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Unauthenticated</td>
+<td style="text-align: left;">Only global announcements (squad_id \= NULL). Read-only. No create button.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Authenticated, COMMUNITY</td>
+<td style="text-align: left;">Global announcements only. Read-only.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Authenticated, SQUAD_MEMBER / SQUAD_LEAD</td>
+<td style="text-align: left;">Global announcements + squad-scoped announcements for their squad. Squad Leads also see a "Post Announcement" button.</td>
+</tr>
+<tr>
+<td style="text-align: left;">ADMIN / SUPER_ADMIN</td>
+<td style="text-align: left;">All announcements. "Post Global Announcement" button visible.</td>
+</tr>
+</tbody>
+</table>
+<p>The same /announcements route serves both the public landing page context and the authenticated app context. The frontend uses the auth state to decide which announcements to request and whether to show the create button.</p>
+<h3 id="new-backend-endpoint-required"><strong>New Backend Endpoint Required</strong><a class="headerlink" href="#new-backend-endpoint-required" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">Path</th>
+<th style="text-align: left;">Auth</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">GET</td>
+<td style="text-align: left;">/api/announcements/public</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Returns the N most recent global announcements. Used by the landing page.</td>
+</tr>
+<tr>
+<td style="text-align: left;">GET</td>
+<td style="text-align: left;">/api/stats/public</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Returns total member count, total problems solved, total contests. Used by landing page stats.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="updated-rls-endpoint-behaviour-for-announcements"><strong>Updated RLS / Endpoint Behaviour for Announcements</strong><a class="headerlink" href="#updated-rls-endpoint-behaviour-for-announcements" title="Permanent link">¶</a></h3>
+<p>The existing GET /api/announcements endpoint (authenticated) already filters by global + own squad. The new GET /api/announcements/public endpoint is strictly public and returns only global announcements with no auth check.</p>
+<h2 id="93-navigation-model"><strong>9.3  Navigation Model</strong><a class="headerlink" href="#93-navigation-model" title="Permanent link">¶</a></h2>
+<p>The application uses a sidebar-based navigation model for all authenticated pages. There are no tabs within the dashboard — each section is a full page reached via the sidebar.</p>
+<h3 id="931-two-distinct-shells"><strong>9.3.1  Two Distinct Shells</strong><a class="headerlink" href="#931-two-distinct-shells" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Shell</th>
+<th style="text-align: left;">Routes</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Landing Shell</td>
+<td style="text-align: left;">/, /announcements (public)</td>
+<td style="text-align: left;">Minimal navbar only. No sidebar. Public-facing. No auth required.</td>
+</tr>
+<tr>
+<td style="text-align: left;">App Shell</td>
+<td style="text-align: left;">/dashboard, /problems, /contests, /profile, /squad, /announcements, /admin, /settings</td>
+<td style="text-align: left;">Full sidebar + header. Auth + active required. Each item is a distinct page.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="932-sidebar-navigation-items"><strong>9.3.2  Sidebar Navigation Items</strong><a class="headerlink" href="#932-sidebar-navigation-items" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Sidebar Item</th>
+<th style="text-align: left;">Route</th>
+<th style="text-align: left;">Visible To</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Dashboard</td>
+<td style="text-align: left;">/dashboard</td>
+<td style="text-align: left;">All authenticated active users</td>
+</tr>
+<tr>
+<td style="text-align: left;">Problems</td>
+<td style="text-align: left;">/problems</td>
+<td style="text-align: left;">All authenticated active users</td>
+</tr>
+<tr>
+<td style="text-align: left;">Contests</td>
+<td style="text-align: left;">/contests</td>
+<td style="text-align: left;">All authenticated active users</td>
+</tr>
+<tr>
+<td style="text-align: left;">My Squad</td>
+<td style="text-align: left;">/squad</td>
+<td style="text-align: left;">SQUAD_MEMBER, SQUAD_LEAD</td>
+</tr>
+<tr>
+<td style="text-align: left;">Announcements</td>
+<td style="text-align: left;">/announcements</td>
+<td style="text-align: left;">All authenticated active users</td>
+</tr>
+<tr>
+<td style="text-align: left;">Profile</td>
+<td style="text-align: left;">/profile/:myUserID</td>
+<td style="text-align: left;">All authenticated active users</td>
+</tr>
+<tr>
+<td style="text-align: left;">Settings</td>
+<td style="text-align: left;">/settings/extension</td>
+<td style="text-align: left;">All authenticated active users</td>
+</tr>
+<tr>
+<td style="text-align: left;">Admin</td>
+<td style="text-align: left;">/admin</td>
+<td style="text-align: left;">ADMIN, SUPER_ADMIN only</td>
+</tr>
+</tbody>
+</table>
+<h3 id="933-dashboard-page-content"><strong>9.3.3  Dashboard Page Content</strong><a class="headerlink" href="#933-dashboard-page-content" title="Permanent link">¶</a></h3>
+<p>The dashboard (/dashboard) is a personal home screen, not a tab container. It shows:</p>
+<ul>
+<li>
+<p>Personal stats: total problems solved, current streak, squad name and role badge.</p>
+</li>
+<li>
+<p>Recent submissions: the last 5 submissions by the logged-in user with problem name, language, and time.</p>
+</li>
+<li>
+<p>Recent global announcements: a small preview of the 3 latest announcements (links to /announcements).</p>
+</li>
+<li>
+<p>Quick links: buttons to Problems, Contests, and Squad pages.</p>
+</li>
+</ul>
+<p><strong>The Daily Verse has moved to the Landing Page. It is not shown on the authenticated dashboard.</strong></p>
+<h1 id="10-browser-extension-design-core-mvp"><strong>10. Browser Extension Design (Core MVP)</strong><a class="headerlink" href="#10-browser-extension-design-core-mvp" title="Permanent link">¶</a></h1>
+<h2 id="101-overview-supported-platforms"><strong>10.1  Overview &amp; Supported Platforms</strong><a class="headerlink" href="#101-overview-supported-platforms" title="Permanent link">¶</a></h2>
+<p>The browser extension is a Manifest V3 extension targeting Chrome (primary) and Firefox. It detects when a user successfully submits a problem on a supported judge and automatically forwards the accepted code to the Focus ASTU portal backend. AtCoder and any OTHER platform problems must be submitted manually through the portal.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Platform</th>
+<th style="text-align: left;">Auto-Capture</th>
+<th style="text-align: left;">Detection Method</th>
+<th style="text-align: left;">Data Captured</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">LeetCode</td>
+<td style="text-align: left;">✅ Auto</td>
+<td style="text-align: left;">Intercept fetch response to /submissions/detail/* checking for "statusDisplay":"Accepted"</td>
+<td style="text-align: left;">Problem slug, language, code, runtime</td>
+</tr>
+<tr>
+<td style="text-align: left;">Codeforces</td>
+<td style="text-align: left;">✅ Auto</td>
+<td style="text-align: left;">Observe DOM for the "Accepted" verdict on the submission result page</td>
+<td style="text-align: left;">Problem ID (e.g. 1A), language, code</td>
+</tr>
+<tr>
+<td style="text-align: left;">AtCoder</td>
+<td style="text-align: left;">Manual only</td>
+<td style="text-align: left;">—  Extension not supported. User submits code manually via the portal.</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr>
+<td style="text-align: left;">OTHER</td>
+<td style="text-align: left;">Manual only</td>
+<td style="text-align: left;">—  User pastes problem link and code directly in the portal.</td>
+<td style="text-align: left;">—</td>
+</tr>
+</tbody>
+</table>
+<h2 id="102-extension-architecture"><strong>10.2  Extension Architecture</strong><a class="headerlink" href="#102-extension-architecture" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">extension/</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">├── manifest.json                       # MV3 manifest</td>
+</tr>
+<tr>
+<td style="text-align: left;">├── background/</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   └── service_worker.js               # Receives messages, calls portal API</td>
+</tr>
+<tr>
+<td style="text-align: left;">├── content_scripts/</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   ├── leetcode.js                     # Injected on leetcode.com</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   └── codeforces.js                   # Injected on codeforces.com</td>
+</tr>
+<tr>
+<td style="text-align: left;">├── popup/</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   ├── popup.html                      # Connection status + API key entry</td>
+</tr>
+<tr>
+<td style="text-align: left;">│   └── popup.js</td>
+</tr>
+<tr>
+<td style="text-align: left;">└── icons/</td>
+</tr>
+</tbody>
+</table>
+<h2 id="103-authentication-handshake"><strong>10.3  Authentication Handshake</strong><a class="headerlink" href="#103-authentication-handshake" title="Permanent link">¶</a></h2>
+<ol>
+<li>
+<p>User installs the extension.</p>
+</li>
+<li>
+<p>User opens the extension popup and visits portal /settings/extension to copy their personal API key.</p>
+</li>
+<li>
+<p>User pastes the API key into the extension popup. The extension stores it in chrome.storage.sync.</p>
+</li>
+<li>
+<p>The extension sends a test request to GET /api/healthz with the API key header to confirm connectivity.</p>
+</li>
+<li>
+<p>Popup displays a green "Connected" badge or an error message.</p>
+</li>
+</ol>
+<p><strong>Security: The Go backend stores only the SHA-256 hash of the API key. The raw key is shown to the user exactly once on generation. On each request, the backend hashes the provided key and compares it to the stored hash.</strong></p>
+<h2 id="104-submission-capture-flow"><strong>10.4  Submission Capture Flow</strong><a class="headerlink" href="#104-submission-capture-flow" title="Permanent link">¶</a></h2>
+<ol>
+<li>
+<p>Content Script detects an accepted submission on the judge's page (via DOM observation or fetch interception).</p>
+</li>
+<li>
+<p>Content Script sends a message to the Service Worker via chrome.runtime.sendMessage containing: platform (LEETCODE | CODEFORCES), external_id, problem_name, external_link, language, and code.</p>
+</li>
+<li>
+<p>Service Worker retrieves the API key from chrome.storage.sync.</p>
+</li>
+<li>
+<p>Service Worker sends POST /api/submissions with Authorization: Bearer \&lt;api_key&gt;.</p>
+</li>
+<li>
+<p>On success (201): Service Worker shows a browser notification confirming the submission was saved.</p>
+</li>
+<li>
+<p>On failure: submission is queued in chrome.storage.local for retry (max 3 retries with exponential backoff).</p>
+</li>
+</ol>
+<p><strong>Important: The extension sends code only for ACCEPTED verdicts. Wrong Answer, TLE, Runtime Error, and Compilation Error submissions are silently ignored.</strong></p>
+<h1 id="11-phase-2-future-features"><strong>11. Phase 2 — Future Features</strong><a class="headerlink" href="#11-phase-2-future-features" title="Permanent link">¶</a></h1>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Feature</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Rationale for Deferral</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">GitHub Sync</td>
+<td style="text-align: left;">After a submission is saved, a Go background worker formats and pushes the code file to the user's connected GitHub repository via the GitHub Contents API. File path: {platform}/{problem_name}/{language}.{ext}. OAuth flow for account connection.</td>
+<td style="text-align: left;">Requires OAuth implementation and a persistent worker queue. Not essential for core tracking.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Internal Contest Rating</td>
+<td style="text-align: left;">A localized ELO-based rating system computed from contest standings, separate from Codeforces' official rating. Updates on each synced contest.</td>
+<td style="text-align: left;">Algorithm design and edge cases require careful design before implementation.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Global Leaderboard</td>
+<td style="text-align: left;">Rankings by problem count, streak, and internal contest rating.</td>
+<td style="text-align: left;">Derivable from existing data once a rating system is in place.</td>
+</tr>
+<tr>
+<td style="text-align: left;">AtCoder &amp; LeetCode Contest Sync</td>
+<td style="text-align: left;">Extend contest syncing beyond Codeforces.</td>
+<td style="text-align: left;">Each platform has a different API. Codeforces is prioritized due to community usage.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Firefox Extension</td>
+<td style="text-align: left;">Port the Chrome MV3 extension to Firefox's WebExtensions API.</td>
+<td style="text-align: left;">Chrome is the primary target. Firefox port is straightforward once Chrome is stable.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Mobile App</td>
+<td style="text-align: left;">React Native or PWA wrapper for native mobile experience.</td>
+<td style="text-align: left;">The web app will be mobile-responsive. A native app is out of scope for MVP.</td>
+</tr>
+</tbody>
+</table>
+<h1 id="12-implementation-roadmap"><strong>12. Implementation Roadmap</strong><a class="headerlink" href="#12-implementation-roadmap" title="Permanent link">¶</a></h1>
+<h2 id="phase-1-foundation-weeks-12"><strong>Phase 1 — Foundation (Weeks 1–2)</strong><a class="headerlink" href="#phase-1-foundation-weeks-12" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">#</th>
+<th style="text-align: left;">Task</th>
+<th style="text-align: left;">Owner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">1.1</td>
+<td style="text-align: left;">Initialize Git repository with monorepo structure (/backend, /frontend, /extension).</td>
+<td style="text-align: left;">Backend</td>
+</tr>
+<tr>
+<td style="text-align: left;">1.2</td>
+<td style="text-align: left;">Create Supabase project. Retrieve SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_JWT_SECRET, service_role key.</td>
+<td style="text-align: left;">Backend</td>
+</tr>
+<tr>
+<td style="text-align: left;">1.3</td>
+<td style="text-align: left;">Write and apply all SQL migrations: enums, tables, RLS policies, auth.users trigger.</td>
+<td style="text-align: left;">Backend</td>
+</tr>
+<tr>
+<td style="text-align: left;">1.4</td>
+<td style="text-align: left;">Seed initial data: 1st Squad row, system_settings.signup_open \= false.</td>
+<td style="text-align: left;">Backend</td>
+</tr>
+<tr>
+<td style="text-align: left;">1.5</td>
+<td style="text-align: left;">Initialize Go module. Scaffold Clean Architecture directory structure.</td>
+<td style="text-align: left;">Backend</td>
+</tr>
+<tr>
+<td style="text-align: left;">1.6</td>
+<td style="text-align: left;">Implement pgxpool connection, config loading from env vars, and health check endpoint.</td>
+<td style="text-align: left;">Backend</td>
+</tr>
+</tbody>
+</table>
+<h2 id="phase-2-backend-core-weeks-23"><strong>Phase 2 — Backend Core (Weeks 2–3)</strong><a class="headerlink" href="#phase-2-backend-core-weeks-23" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">#</th>
+<th style="text-align: left;">Task</th>
+<th style="text-align: left;">Owner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">2.1</td>
+<td style="text-align: left;">Define all domain models and repository interfaces.</td>
+<td style="text-align: left;">Backend</td>
+</tr>
+<tr>
+<td style="text-align: left;">2.2</td>
+<td style="text-align: left;">Implement all PostgreSQL repository implementations.</td>
+<td style="text-align: left;">Backend</td>
+</tr>
+<tr>
+<td style="text-align: left;">2.3</td>
+<td style="text-align: left;">Implement JWT auth middleware (validate Supabase JWT, extract user_id).</td>
+<td style="text-align: left;">Backend</td>
+</tr>
+<tr>
+<td style="text-align: left;">2.4</td>
+<td style="text-align: left;">Implement role guard middleware.</td>
+<td style="text-align: left;">Backend</td>
+</tr>
+<tr>
+<td style="text-align: left;">2.5</td>
+<td style="text-align: left;">Implement UC-01: Problem Submission use case + POST /api/submissions.</td>
+<td style="text-align: left;">Backend</td>
+</tr>
+<tr>
+<td style="text-align: left;">2.6</td>
+<td style="text-align: left;">Implement API Key generation, hashing, and validation for extension auth.</td>
+<td style="text-align: left;">Backend</td>
+</tr>
+<tr>
+<td style="text-align: left;">2.7</td>
+<td style="text-align: left;">Implement user profile endpoints (GET, PUT, complete-profile).</td>
+<td style="text-align: left;">Backend</td>
+</tr>
+<tr>
+<td style="text-align: left;">2.8</td>
+<td style="text-align: left;">Implement Daily Verse use case and endpoint.</td>
+<td style="text-align: left;">Backend</td>
+</tr>
+</tbody>
+</table>
+<h2 id="phase-3-frontend-scaffolding-weeks-34"><strong>Phase 3 — Frontend Scaffolding (Weeks 3–4)</strong><a class="headerlink" href="#phase-3-frontend-scaffolding-weeks-34" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">#</th>
+<th style="text-align: left;">Task</th>
+<th style="text-align: left;">Owner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">3.1</td>
+<td style="text-align: left;">Initialize Vite + React + TypeScript project. Install all dependencies.</td>
+<td style="text-align: left;">Frontend</td>
+</tr>
+<tr>
+<td style="text-align: left;">3.2</td>
+<td style="text-align: left;">Configure React Router with all routes, Landing Shell, App Shell, and ProtectedRoute.</td>
+<td style="text-align: left;">Frontend</td>
+</tr>
+<tr>
+<td style="text-align: left;">3.3</td>
+<td style="text-align: left;">Implement AuthContext using Supabase onAuthStateChange.</td>
+<td style="text-align: left;">Frontend</td>
+</tr>
+<tr>
+<td style="text-align: left;">3.4</td>
+<td style="text-align: left;">Build Landing Page: hero, daily verse card, global announcements feed, public navbar.</td>
+<td style="text-align: left;">Frontend</td>
+</tr>
+<tr>
+<td style="text-align: left;">3.5</td>
+<td style="text-align: left;">Build Login, Signup, Invite, and Complete Profile pages.</td>
+<td style="text-align: left;">Frontend</td>
+</tr>
+<tr>
+<td style="text-align: left;">3.6</td>
+<td style="text-align: left;">Configure Axios instance with automatic JWT attachment and TanStack Query client.</td>
+<td style="text-align: left;">Frontend</td>
+</tr>
+<tr>
+<td style="text-align: left;">3.7</td>
+<td style="text-align: left;">Build App Shell (sidebar + header) with navigation items.</td>
+<td style="text-align: left;">Frontend</td>
+</tr>
+</tbody>
+</table>
+<h2 id="phase-4-core-features-weeks-46"><strong>Phase 4 — Core Features (Weeks 4–6)</strong><a class="headerlink" href="#phase-4-core-features-weeks-46" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">#</th>
+<th style="text-align: left;">Task</th>
+<th style="text-align: left;">Owner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">4.1</td>
+<td style="text-align: left;">Dashboard Page: daily verse card + personal stats (problem count, streak, squad).</td>
+<td style="text-align: left;">Frontend</td>
+</tr>
+<tr>
+<td style="text-align: left;">4.2</td>
+<td style="text-align: left;">Problems Page: filterable table with platform badges and expandable submission accordion.</td>
+<td style="text-align: left;">Frontend + Backend</td>
+</tr>
+<tr>
+<td style="text-align: left;">4.3</td>
+<td style="text-align: left;">Submission View Page: syntax-highlighted code with copy-to-clipboard button.</td>
+<td style="text-align: left;">Frontend</td>
+</tr>
+<tr>
+<td style="text-align: left;">4.4</td>
+<td style="text-align: left;">Editorial Page: Markdown reader and writer.</td>
+<td style="text-align: left;">Frontend + Backend</td>
+</tr>
+<tr>
+<td style="text-align: left;">4.5</td>
+<td style="text-align: left;">Profile Page: badges, handles, streak display, recent submissions list.</td>
+<td style="text-align: left;">Frontend + Backend</td>
+</tr>
+</tbody>
+</table>
+<h2 id="phase-5-contest-squad-features-weeks-68"><strong>Phase 5 — Contest &amp; Squad Features (Weeks 6–8)</strong><a class="headerlink" href="#phase-5-contest-squad-features-weeks-68" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">#</th>
+<th style="text-align: left;">Task</th>
+<th style="text-align: left;">Owner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">5.1</td>
+<td style="text-align: left;">UC-02: Codeforces contest sync use case + squad lead endpoint (own squad) + admin endpoint (any squad).</td>
+<td style="text-align: left;">Backend</td>
+</tr>
+<tr>
+<td style="text-align: left;">5.2</td>
+<td style="text-align: left;">Contests Page + Contest Detail Page (standings + upsolve toggle).</td>
+<td style="text-align: left;">Frontend</td>
+</tr>
+<tr>
+<td style="text-align: left;">5.3</td>
+<td style="text-align: left;">UC-03: Squad Track Management use case + endpoints.</td>
+<td style="text-align: left;">Backend</td>
+</tr>
+<tr>
+<td style="text-align: left;">5.4</td>
+<td style="text-align: left;">Squad Page: curriculum tree accordion (Track → Topic → Problem).</td>
+<td style="text-align: left;">Frontend</td>
+</tr>
+<tr>
+<td style="text-align: left;">5.5</td>
+<td style="text-align: left;">Announcements Page + creation forms (admin/squad lead).</td>
+<td style="text-align: left;">Frontend + Backend</td>
+</tr>
+<tr>
+<td style="text-align: left;">5.6</td>
+<td style="text-align: left;">Admin Dashboard: user table, role/squad controls, ban toggle, invitations, contest sync.</td>
+<td style="text-align: left;">Frontend + Backend</td>
+</tr>
+</tbody>
+</table>
+<h2 id="phase-6-browser-extension-weeks-79-parallel"><strong>Phase 6 — Browser Extension (Weeks 7–9, parallel)</strong><a class="headerlink" href="#phase-6-browser-extension-weeks-79-parallel" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">#</th>
+<th style="text-align: left;">Task</th>
+<th style="text-align: left;">Owner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">6.1</td>
+<td style="text-align: left;">Scaffold MV3 extension with manifest, content scripts, service worker, and popup.</td>
+<td style="text-align: left;">Extension</td>
+</tr>
+<tr>
+<td style="text-align: left;">6.2</td>
+<td style="text-align: left;">LeetCode content script: detect accepted verdict, extract code.</td>
+<td style="text-align: left;">Extension</td>
+</tr>
+<tr>
+<td style="text-align: left;">6.3</td>
+<td style="text-align: left;">Codeforces content script: detect AC verdict, extract code.</td>
+<td style="text-align: left;">Extension</td>
+</tr>
+<tr>
+<td style="text-align: left;">6.4</td>
+<td style="text-align: left;">Service worker: receive messages, call portal API, retry queue with backoff.</td>
+<td style="text-align: left;">Extension</td>
+</tr>
+<tr>
+<td style="text-align: left;">6.5</td>
+<td style="text-align: left;">Popup UI: API key entry, connection status, last submission indicator.</td>
+<td style="text-align: left;">Extension</td>
+</tr>
+<tr>
+<td style="text-align: left;">6.6</td>
+<td style="text-align: left;">Portal Settings page for API key generation and extension download link.</td>
+<td style="text-align: left;">Frontend + Backend</td>
+</tr>
+</tbody>
+</table>
+<h2 id="phase-7-deployment-hardening-weeks-910"><strong>Phase 7 — Deployment &amp; Hardening (Weeks 9–10)</strong><a class="headerlink" href="#phase-7-deployment-hardening-weeks-910" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">#</th>
+<th style="text-align: left;">Task</th>
+<th style="text-align: left;">Owner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">7.1</td>
+<td style="text-align: left;">Write multi-stage Dockerfiles for backend and frontend.</td>
+<td style="text-align: left;">DevOps</td>
+</tr>
+<tr>
+<td style="text-align: left;">7.2</td>
+<td style="text-align: left;">Write docker-compose.yml with health checks, restart policies, env_file references.</td>
+<td style="text-align: left;">DevOps</td>
+</tr>
+<tr>
+<td style="text-align: left;">7.3</td>
+<td style="text-align: left;">Configure Nginx for SPA fallback, /api proxy, and gzip compression.</td>
+<td style="text-align: left;">DevOps</td>
+</tr>
+<tr>
+<td style="text-align: left;">7.4</td>
+<td style="text-align: left;">End-to-end testing: registration, extension submission, contest sync, role escalation.</td>
+<td style="text-align: left;">All</td>
+</tr>
+<tr>
+<td style="text-align: left;">7.5</td>
+<td style="text-align: left;">Deploy to VPS. Configure DNS and HTTPS (Let's Encrypt).</td>
+<td style="text-align: left;">DevOps</td>
+</tr>
+</tbody>
+</table>
+<h1 id="13-non-functional-requirements"><strong>13. Non-Functional Requirements</strong><a class="headerlink" href="#13-non-functional-requirements" title="Permanent link">¶</a></h1>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Category</th>
+<th style="text-align: left;">Requirement</th>
+<th style="text-align: left;">Implementation Approach</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Performance</td>
+<td style="text-align: left;">API responses under 200ms for non-sync operations on a 1GB VPS.</td>
+<td style="text-align: left;">pgxpool connection reuse, TanStack Query caching on frontend, in-memory verse cache.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Security</td>
+<td style="text-align: left;">No client-provided user_id on write endpoints. API keys stored as SHA-256 hashes. Supabase RLS as second enforcement layer.</td>
+<td style="text-align: left;">JWT middleware, hashed API keys, RLS policies, banned-user check on every write endpoint.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Reliability</td>
+<td style="text-align: left;">Graceful degradation if Codeforces API or Bible Verse API is unreachable.</td>
+<td style="text-align: left;">Timeouts on all external HTTP calls. Fallback to cached verse. CF sync errors return descriptive failure, not 500.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Resource Efficiency</td>
+<td style="text-align: left;">Total Docker memory usage under 300MB on a 1GB VPS.</td>
+<td style="text-align: left;">Multi-stage Docker builds (\~15MB Go binary, \~30MB Nginx + static files). No Node.js in production.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Maintainability</td>
+<td style="text-align: left;">Backend business logic must be testable without a real database or HTTP server.</td>
+<td style="text-align: left;">Clean Architecture with repository interfaces. Unit tests target use case layer with mock repositories.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Scalability</td>
+<td style="text-align: left;">Architecture allows future migration to public signup, Kubernetes, or additional integrations without major rewrites.</td>
+<td style="text-align: left;">Docker-first design. Single config toggle for public signup. Clean separation of concerns throughout.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Data Integrity</td>
+<td style="text-align: left;">Duplicate (user, problem) pairs are de-duplicated for problem count purposes.</td>
+<td style="text-align: left;">UpdateUserStats checks for existing (user_id, problem_id) before incrementing problem_count.</td>
+</tr>
+</tbody>
+</table>
+<p><em>— End of Document —</em></p>
+<p>Focus ASTU CP Hub  ·  Master System Design v3.0</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden="">
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/focusastu/focus-astu-cp-hub-web" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://t.me/focusastu" target="_blank" rel="noopener" title="t.me" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M256 8a248 248 0 1 0 0 496 248 248 0 1 0 0-496m115 168.7c-3.7 39.2-19.9 134.4-28.1 178.3-3.5 18.6-10.3 24.8-16.9 25.4-14.4 1.3-25.3-9.5-39.3-18.7-21.8-14.3-34.2-23.2-55.3-37.2-24.5-16.1-8.6-25 5.3-39.5 3.7-3.8 67.1-61.5 68.3-66.7.2-.7.3-3.1-1.2-4.4s-3.6-.8-5.1-.5c-2.2.5-37.1 23.5-104.6 69.1-9.9 6.8-18.9 10.1-26.9 9.9-8.9-.2-25.9-5-38.6-9.1-15.5-5-27.9-7.7-26.8-16.3.6-4.5 6.7-9 18.4-13.7 72.3-31.5 120.5-52.3 144.6-62.3 68.9-28.6 83.2-33.6 92.5-33.8 2.1 0 6.6.5 9.6 2.9 2 1.7 3.2 4.1 3.5 6.7.5 3.2.6 6.5.4 9.8z"></path></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.top", "navigation.indexes", "toc.integrate", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script></body></html>
