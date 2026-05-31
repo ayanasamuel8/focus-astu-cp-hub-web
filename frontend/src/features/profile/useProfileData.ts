@@ -1,0 +1,144 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '../../lib/supabase';
+import { api } from '../../lib/api';
+
+// ── Full user profile ─────────────────────────────────────────────────────
+export interface UserProfile {
+  id: string;
+  full_name: string;
+  email: string;
+  bio: string | null;
+  telegram_handle: string;
+  linkedin_url: string | null;
+  leetcode_handle: string | null;
+  codeforces_handle: string | null;
+  atcoder_handle: string | null;
+  role: string;
+  is_banned: boolean;
+  problem_count: number;
+  daily_streak: number;
+  last_submission_date: string | null;
+  squad_id: string | null;
+  squad_name: string | null;
+  created_at: string;
+}
+
+export function useProfile(userId: string | undefined) {
+  return useQuery({
+    queryKey: ['profile-full', userId],
+    queryFn: async () => {
+      if (!userId) return null;
+      const { data, error } = await supabase
+        .from('users')
+        .select('*, squad:squads(name)')
+        .eq('id', userId)
+        .single();
+      if (error) throw error;
+      const squad = data?.squad as { name: string } | null;
+      return { ...data, squad_name: squad?.name ?? null } as UserProfile;
+    },
+    enabled: !!userId,
+  });
+}
+
+// ── Role history ─────────────────────────────────────────────────────────
+export interface RoleHistoryEntry {
+  id: string;
+  role: string;
+  squad_name: string | null;
+  assigned_at: string;
+}
+
+export function useRoleHistory(userId: string | undefined) {
+  return useQuery({
+    queryKey: ['role-history', userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const { data, error } = await supabase
+        .from('user_roles_history')
+        .select('id, role, assigned_at, squad:squads(name)')
+        .eq('user_id', userId)
+        .order('assigned_at', { ascending: false });
+      if (error) throw error;
+      return (data ?? []).map((r: Record<string, unknown>) => {
+        const sq = r.squad as { name: string } | null;
+        return { id: r.id, role: r.role, squad_name: sq?.name ?? null, assigned_at: r.assigned_at } as RoleHistoryEntry;
+      });
+    },
+    enabled: !!userId,
+  });
+}
+
+// ── Recent submissions for a user ────────────────────────────────────────
+export interface ProfileSubmission {
+  id: string;
+  language: string;
+  submitted_at: string;
+  problem: { name: string; platform: string } | null;
+}
+
+export function useUserSubmissions(userId: string | undefined, limit = 10) {
+  return useQuery({
+    queryKey: ['user-submissions', userId, limit],
+    queryFn: async () => {
+      if (!userId) return [];
+      const { data, error } = await supabase
+        .from('submissions')
+        .select('id, language, submitted_at, problem:problems(name, platform)')
+        .eq('user_id', userId)
+        .order('submitted_at', { ascending: false })
+        .limit(limit);
+      if (error) throw error;
+      return (data ?? []).map((s: Record<string, unknown>) => ({
+        id: s.id,
+        language: s.language,
+        submitted_at: s.submitted_at,
+        problem: s.problem as { name: string; platform: string } | null,
+      })) as ProfileSubmission[];
+    },
+    enabled: !!userId,
+  });
+}
+
+// ── Activity heatmap (last 16 weeks = 112 days) ─────────────────────────
+export function useActivityHeatmap(userId: string | undefined) {
+  return useQuery({
+    queryKey: ['activity-heatmap', userId],
+    queryFn: async () => {
+      if (!userId) return new Map<string, number>();
+      const since = new Date(Date.now() - 112 * 86_400_000).toISOString().split('T')[0];
+      const { data, error } = await supabase
+        .from('submissions')
+        .select('submitted_at')
+        .eq('user_id', userId)
+        .gte('submitted_at', since);
+      if (error) throw error;
+      const EAT_OFFSET = 3 * 60 * 60 * 1000; // UTC+3
+      const counts = new Map<string, number>();
+      for (const s of data ?? []) {
+        // Convert UTC timestamp → EAT calendar date
+        const eatDate = new Date(new Date(s.submitted_at as string).getTime() + EAT_OFFSET);
+        const day = eatDate.toISOString().slice(0, 10);
+        counts.set(day, (counts.get(day) ?? 0) + 1);
+      }
+      return counts;
+    },
+    enabled: !!userId,
+    staleTime: 300_000,
+  });
+}
+
+// ── Update own profile ────────────────────────────────────────────────────
+export function useUpdateProfile() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: Partial<{
+      bio: string; telegram_handle: string; linkedin_url: string;
+      leetcode_handle: string; codeforces_handle: string; atcoder_handle: string;
+    }>) => api.put('/api/users/me', payload),
+    onSuccess: (_data, _vars, _ctx) => {
+      qc.invalidateQueries({ queryKey: ['profile'] });
+      qc.invalidateQueries({ queryKey: ['profile-full'] });
+    },
+  });
+}

@@ -1,0 +1,68 @@
+name: Backend / API Bug
+description: An API endpoint returns wrong data, an unexpected error, or the wrong status code
+title: "[Backend] "
+labels: ["bug", "backend"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for bugs you found using the **API directly** (via Swagger UI, curl, or the frontend triggering a broken API call).
+
+  - type: input
+    id: endpoint
+    attributes:
+      label: Endpoint
+      description: HTTP method and path
+      placeholder: "e.g. GET /api/problems or POST /api/submissions"
+    validations:
+      required: true
+
+  - type: textarea
+    id: request
+    attributes:
+      label: Request details
+      description: Query parameters, request body, or relevant headers (omit your actual JWT/API key).
+      placeholder: |
+        Query params: platform=LEETCODE
+        Body: { "language": "python3", "code": "..." }
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected response
+      description: What should the response have been?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual response
+      description: Paste the actual HTTP status code and response body.
+      render: json
+    validations:
+      required: true
+
+  - type: dropdown
+    id: role
+    attributes:
+      label: Your account role
+      options:
+        - Community
+        - Squad Member
+        - Squad Lead
+        - Admin
+        - Super Admin
+        - Not authenticated
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional context
+      description: Any other information that might help?

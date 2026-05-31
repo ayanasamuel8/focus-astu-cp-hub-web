@@ -1,0 +1,96 @@
+name: Extension Bug
+description: The browser extension isn't capturing submissions, showing wrong notifications, or failing to connect
+title: "[Extension] "
+labels: ["bug", "extension"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for bugs in the **Focus ASTU CP Hub Chrome extension**.
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Which platform was affected?
+      options:
+        - LeetCode
+        - Codeforces
+        - Both
+    validations:
+      required: true
+
+  - type: dropdown
+    id: bug_type
+    attributes:
+      label: What went wrong?
+      options:
+        - Accepted submission was NOT captured / logged
+        - Wrong problem was logged
+        - Wrong language was logged
+        - Notification appeared but submission not in hub
+        - Extension popup won't open
+        - API key / settings not saving
+        - Extension crashing (service worker error)
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open problem: https://leetcode.com/problems/...
+        2. Submit a correct solution in Python
+        3. Accepted verdict shown
+        4. No notification from extension
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser & version
+      placeholder: "e.g. Chrome 124"
+    validations:
+      required: true
+
+  - type: input
+    id: extension_version
+    attributes:
+      label: Extension version
+      description: Shown in chrome://extensions next to the extension name
+      placeholder: "e.g. 1.0.0"
+
+  - type: textarea
+    id: console
+    attributes:
+      label: Service worker console errors
+      description: |
+        To get these:
+        1. Go to chrome://extensions
+        2. Find Focus ASTU CP Hub
+        3. Click "Service Worker" link
+        4. Copy any errors from that DevTools console
+      render: text
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional context

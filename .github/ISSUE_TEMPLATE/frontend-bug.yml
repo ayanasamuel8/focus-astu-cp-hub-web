@@ -1,0 +1,105 @@
+name: Frontend Bug
+description: Something is wrong in the web portal (pages, buttons, layout, data display)
+title: "[Frontend] "
+labels: ["bug", "frontend"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for bugs you see in the **browser web portal**.
+
+  - type: input
+    id: page
+    attributes:
+      label: Page / URL
+      description: Which page or URL were you on?
+      placeholder: "e.g. /problems, /contests/abc123/standings"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to ...
+        2. Click / type ...
+        3. See ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include any error messages or unexpected text shown on screen.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: bug_type
+    attributes:
+      label: Bug type
+      options:
+        - Data not showing / wrong data
+        - Button / action not working
+        - Layout / styling broken
+        - Page not loading (blank or error)
+        - Form validation incorrect
+        - Navigation / routing issue
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: Drag and drop screenshots here.
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser & OS
+      placeholder: "e.g. Chrome 124 on Ubuntu 22.04"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: responsive
+    attributes:
+      label: Screen size
+      options:
+        - Desktop (≥ 1280px)
+        - Tablet (768–1279px)
+        - Mobile (< 768px)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: role
+    attributes:
+      label: Your account role
+      options:
+        - Community
+        - Squad Member
+        - Squad Lead
+        - Admin
+        - Not logged in
+    validations:
+      required: true
+
+  - type: textarea
+    id: console
+    attributes:
+      label: Console errors
+      render: text
