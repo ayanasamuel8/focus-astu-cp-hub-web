@@ -1,0 +1,44 @@
+name: Package Extension
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version tag (e.g. v1.0.0)
+        required: false
+        default: manual
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    name: Zip & attach to release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build zip
+        run: |
+          cd extension
+          zip -r ../focus-astu-cp-hub-extension.zip . \
+            --exclude "*.DS_Store" \
+            --exclude "*Thumbs.db"
+
+      - name: Attach to GitHub Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: focus-astu-cp-hub-extension.zip
+
+      - name: Upload as artifact (manual run)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: focus-astu-cp-hub-extension
+          path: focus-astu-cp-hub-extension.zip
+          retention-days: 7
