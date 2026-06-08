@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { T } from '../../lib/tokens';
 import { api } from '../../lib/api';
+import { useAuth } from '../../hooks/useAuth';
 import { AuthShell, Field } from './AuthShell';
 import { Btn } from '../../components/ui/Btn';
 
@@ -31,6 +33,8 @@ export default function CompleteProfilePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError]   = useState('');
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   function set(key: keyof FormState) {
     return (v: string) => setForm((f) => ({ ...f, [key]: v }));
@@ -56,6 +60,7 @@ export default function CompleteProfilePage() {
         linkedin_url:      form.linkedin_url.trim() || undefined,
         bio:               form.bio.trim() || undefined,
       });
+      await queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
       navigate('/dashboard');
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
