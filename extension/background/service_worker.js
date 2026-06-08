@@ -122,7 +122,7 @@ async function getSettings() {
   const data = await chrome.storage.sync.get(['apiKey', 'portalUrl']);
   return {
     apiKey: data.apiKey || '',
-    portalUrl: (data.portalUrl || 'http://localhost:8080').replace(/\/$/, ''),
+    portalUrl: (data.portalUrl || 'https://focus-astu-backend.purplebeach-cef0511d.southafricanorth.azurecontainerapps.io').replace(/\/$/, ''),
   };
 }
 

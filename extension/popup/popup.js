@@ -13,7 +13,7 @@ const settingsLink = document.getElementById('settings-link');
 // ── Init ──────────────────────────────────────────────────────────────────────
 
 async function init() {
-  const { apiKey = '', portalUrl = 'http://localhost:8080' } =
+  const { apiKey = '', portalUrl = 'https://focus-astu-backend.purplebeach-cef0511d.southafricanorth.azurecontainerapps.io' } =
     await chrome.storage.sync.get(['apiKey', 'portalUrl']);
 
   portalInput.value = portalUrl;
@@ -38,7 +38,7 @@ async function init() {
 // ── Event listeners ───────────────────────────────────────────────────────────
 
 btnSave.addEventListener('click', async () => {
-  const portalUrl = portalInput.value.trim().replace(/\/$/, '') || 'http://localhost:8080';
+  const portalUrl = portalInput.value.trim().replace(/\/$/, '') || 'https://focus-astu-backend.purplebeach-cef0511d.southafricanorth.azurecontainerapps.io';
   const apiKey    = apiKeyInput.value.trim();
 
   if (!apiKey && !(await hasSavedKey())) {
@@ -62,7 +62,7 @@ btnSave.addEventListener('click', async () => {
 });
 
 btnTest.addEventListener('click', async () => {
-  const portalUrl = portalInput.value.trim().replace(/\/$/, '') || 'http://localhost:8080';
+  const portalUrl = portalInput.value.trim().replace(/\/$/, '') || 'https://focus-astu-backend.purplebeach-cef0511d.southafricanorth.azurecontainerapps.io';
   const { apiKey } = await chrome.storage.sync.get('apiKey');
   if (!apiKey) {
     setStatus('error', 'Save an API key first');
