@@ -23,12 +23,15 @@ Track solved problems, log contest standings, host community editorials, and man
 ## Features
 
 - **Problem library** — searchable, filterable, tagged by platform (LeetCode, Codeforces, AtCoder, …)
-- **Submission tracking** — auto-captured via the browser extension or logged manually
+- **Submission tracking** — auto-captured via the browser extension or logged manually from any page (including the squad curriculum)
 - **Contest standings** — synced from the Codeforces API with rating deltas
-- **Community editorials** — markdown write-ups with upvote/downvote scoring
-- **Squad curriculum** — track → topic → problem learning paths managed by squad leads
-- **Announcements** — squad-scoped and global
-- **Admin panel** — user management, invitation system, role assignment
+- **Community editorials** — Markdown write-ups with upvote/downvote scoring
+- **Squad curriculum** — track → topic → problem learning paths managed by squad leads; problem names link to the problem externally, each row has an Editorial shortcut and an inline Submit button for unsolved problems
+- **Announcements** — Markdown-formatted; squad-scoped (squad lead → own squad) and global or squad-targeted (admin selects specific squads or all)
+- **Member directory** — searchable, filterable by squad, links to every member's profile
+- **Profile pages** — public to all authenticated users; shows stats, activity heatmap, handles, and role history
+- **Admin panel** — user management, squad CRUD, invitation system (email via Resend), role assignment, contest sync
+- **Legal pages** — Privacy Policy and Terms of Service with consent at signup and profile completion
 
 ---
 
@@ -37,7 +40,8 @@ Track solved problems, log contest standings, host community editorials, and man
 ```
 ┌──────────────────────────────────────────────────────────────────┐
 │                        React SPA (Vite)                          │
-│  Landing · Dashboard · Problems · Contests · Editorials · Admin  │
+│  Landing · Dashboard · Problems · Contests · Editorials ·        │
+│  Squad · Members · Announcements · Profile · Admin               │
 └─────────────────────────┬────────────────────────────────────────┘
                           │  HTTPS REST  /api/*
 ┌─────────────────────────▼────────────────────────────────────────┐
@@ -75,7 +79,7 @@ Track solved problems, log contest standings, host community editorials, and man
 ```bash
 cd backend
 cp .env.example .env
-# Fill in DATABASE_URL, SUPABASE_URL, and SUPABASE_SERVICE_ROLE_KEY
+# Fill in DATABASE_URL, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY, SITE_URL
 
 # Run migrations
 psql "$DATABASE_URL" -f migrations/001_initial.sql
@@ -111,7 +115,7 @@ See the [extension installation guide](https://ayanasamuel8.github.io/focus-astu
 
 ## API reference
 
-The backend serves an interactive Swagger UI at **`/api/docs`** when running. It covers all 40+ endpoints across public, authenticated, squad-lead, and admin tiers.
+The backend serves an interactive Swagger UI at **`/api/docs`** when running. It covers all endpoints across public, authenticated, squad-lead, and admin tiers.
 
 Full endpoint list: [docs → API Reference](https://ayanasamuel8.github.io/focus-astu-cp-hub-web/backend/api-reference/)
 
@@ -136,9 +140,9 @@ Full documentation lives at **[ayanasamuel8.github.io/focus-astu-cp-hub-web](htt
 | Role | Level | Can do |
 |------|-------|--------|
 | `COMMUNITY` | 0 | Public stats & announcements |
-| `SQUAD_MEMBER` | 1 | Log submissions, view problems/contests, write editorials |
-| `SQUAD_LEAD` | 2 | Manage squad curriculum, sync contests, post announcements |
-| `ADMIN` | 3 | Manage all users, invitations, global announcements |
+| `SQUAD_MEMBER` | 1 | Log submissions, view problems/contests, write editorials, browse members |
+| `SQUAD_LEAD` | 2 | Manage squad curriculum, sync contests, post squad announcements |
+| `ADMIN` | 3 | Manage all users/squads/invitations, post global or squad-targeted announcements |
 | `SUPER_ADMIN` | 4 | Toggle open signup |
 
 ---
@@ -163,6 +167,10 @@ focus-astu-cp-hub-web/
 │       ├── app/router.tsx      # Routes
 │       ├── components/         # UI + layout components
 │       ├── features/           # Page-level feature modules
+│       │   ├── users/          # Member directory
+│       │   ├── squad/          # Squad curriculum (mobile-responsive)
+│       │   ├── announcements/  # Announcements with Markdown + post modal
+│       │   └── ...
 │       ├── hooks/              # Shared hooks
 │       └── lib/                # API client, Supabase, tokens
 ├── extension/                  # Chrome Extension MV3

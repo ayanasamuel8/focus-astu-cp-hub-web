@@ -10,8 +10,10 @@ import { Icon } from '../../components/ui/Icon';
 import { Avatar } from '../../components/ui/Avatar';
 import { RoleBadge, SquadBadge } from '../../components/ui/Badge';
 import { Kicker } from '../../components/ui/Card';
+import { MarkdownRenderer } from '../../components/ui/MarkdownRenderer';
 import { useAuth } from '../../hooks/useAuth';
 import { useAppUser } from '../../hooks/useAppUser';
+import { useSquads } from '../admin/useAdminData';
 import {
   useAnnouncements, usePublicAnnouncementsFull, useCreateAnnouncement,
   type Announcement,
@@ -52,7 +54,9 @@ function AnnItem({ a }: { a: Announcement }) {
       <h3 style={{ margin: '0 0 9px', fontFamily: T.fD, fontSize: 17, fontWeight: 600, color: T.text, letterSpacing: -0.3 }}>
         {a.title}
       </h3>
-      <p style={{ margin: 0, fontFamily: T.fB, fontSize: 14, lineHeight: 1.6, color: T.text2 }}>{a.body}</p>
+      <div style={{ margin: 0 }}>
+        <MarkdownRenderer content={a.body} small />
+      </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginTop: 16, paddingTop: 14, borderTop: `1px solid ${T.borderSoft}` }}>
         <Avatar name={a.author_name} size={26} />
         <span style={{ fontFamily: T.fD, fontSize: 12.5, fontWeight: 500, color: T.text }}>{a.author_name}</span>
@@ -64,59 +68,133 @@ function AnnItem({ a }: { a: Announcement }) {
 
 // ── Post modal ────────────────────────────────────────────────────────────
 function PostModal({
-  canGlobal, squadName, onClose,
-}: { canGlobal: boolean; squadName: string | null; onClose: () => void }) {
-  const [title, setTitle]  = useState('');
-  const [body, setBody]    = useState('');
-  const [scope, setScope]  = useState<'GLOBAL' | 'SQUAD'>(canGlobal ? 'GLOBAL' : 'SQUAD');
-  const [error, setError]  = useState('');
-  const { mutateAsync, isPending } = useCreateAnnouncement();
+  canGlobal, squadId, squadName, onClose,
+}: { canGlobal: boolean; squadId: string | null; squadName: string | null; onClose: () => void }) {
+  const [title, setTitle]           = useState('');
+  const [body, setBody]             = useState('');
+  const [scope, setScope]           = useState<'GLOBAL' | 'SQUAD'>(canGlobal ? 'GLOBAL' : 'SQUAD');
+  const [selectedSquads, setSelected] = useState<string[]>([]);
+  const [bodyTab, setBodyTab]       = useState<'write' | 'preview'>('write');
+  const [error, setError]           = useState('');
+  const { mutateAsync, isPending }  = useCreateAnnouncement();
+  // Only fetch squads when admin needs the squad picker
+  const { data: squads = [] } = useSquads();
+
+  function toggleSquad(id: string) {
+    setSelected((prev) => prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]);
+  }
 
   async function handlePost() {
     if (!title.trim() || !body.trim()) { setError('Title and body are required.'); return; }
+    if (canGlobal && scope === 'SQUAD' && selectedSquads.length === 0) {
+      setError('Select at least one squad.'); return;
+    }
     setError('');
     try {
-      await mutateAsync({ title: title.trim(), body: body.trim(), scope });
+      if (scope === 'SQUAD' && !canGlobal && squadId) {
+        // Squad lead — post to own squad
+        await mutateAsync({ scope: 'SQUAD', squad_id: squadId, title: title.trim(), body: body.trim() });
+      } else if (scope === 'SQUAD' && canGlobal) {
+        // Admin — post to selected squads
+        await mutateAsync({ scope: 'SQUAD_IDS', squad_ids: selectedSquads, title: title.trim(), body: body.trim() });
+      } else {
+        // Admin — global
+        await mutateAsync({ scope: 'GLOBAL', title: title.trim(), body: body.trim() });
+      }
       onClose();
     } catch { setError('Failed to post — try again.'); }
   }
 
+  const inputStyle: React.CSSProperties = {
+    width: '100%', background: T.surface2, border: `1px solid ${T.border}`,
+    borderRadius: 9, padding: '10px 13px', outline: 'none',
+    boxSizing: 'border-box', fontFamily: T.fB, fontSize: 13.5, color: T.text,
+  };
+
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }} />
-      <div style={{ position: 'relative', width: '100%', maxWidth: 540, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 16, padding: 28, zIndex: 1 }}>
+      <div style={{ position: 'relative', width: '100%', maxWidth: 560, maxHeight: '90vh', overflowY: 'auto', background: T.surface, border: `1px solid ${T.border}`, borderRadius: 16, padding: 28, zIndex: 1 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22 }}>
           <h2 style={{ fontFamily: T.fD, fontSize: 18, fontWeight: 600, color: T.text, margin: 0 }}>Post announcement</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: T.text3 }}><Icon name="ban" size={17} /></button>
         </div>
 
-        {/* Scope selector */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 18 }}>
-          {canGlobal && (
-            <button
-              onClick={() => setScope('GLOBAL')}
-              style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: `1px solid ${scope === 'GLOBAL' ? T.accent : T.border}`, background: scope === 'GLOBAL' ? T.accentGhost : T.surface2, color: scope === 'GLOBAL' ? T.accentText : T.text2, fontFamily: T.fD, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
-            >Global</button>
-          )}
-          {squadName && (
-            <button
-              onClick={() => setScope('SQUAD')}
-              style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: `1px solid ${scope === 'SQUAD' ? T.accent : T.border}`, background: scope === 'SQUAD' ? T.accentGhost : T.surface2, color: scope === 'SQUAD' ? T.accentText : T.text2, fontFamily: T.fD, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
-            >{squadName}</button>
-          )}
+        {/* Scope selector — only for admins */}
+        {canGlobal && (
+          <div style={{ display: 'flex', gap: 8, marginBottom: 18 }}>
+            <button onClick={() => setScope('GLOBAL')} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: `1px solid ${scope === 'GLOBAL' ? T.accent : T.border}`, background: scope === 'GLOBAL' ? T.accentGhost : T.surface2, color: scope === 'GLOBAL' ? T.accentText : T.text2, fontFamily: T.fD, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+              Global
+            </button>
+            <button onClick={() => setScope('SQUAD')} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: `1px solid ${scope === 'SQUAD' ? T.accent : T.border}`, background: scope === 'SQUAD' ? T.accentGhost : T.surface2, color: scope === 'SQUAD' ? T.accentText : T.text2, fontFamily: T.fD, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+              Squad(s)
+            </button>
+          </div>
+        )}
+
+        {/* Squad lead — show their squad as a locked chip */}
+        {!canGlobal && squadName && (
+          <div style={{ marginBottom: 18, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontFamily: T.fD, fontSize: 12.5, fontWeight: 500, color: T.text2 }}>Posting to</span>
+            <SquadBadge squad={squadName} size="sm" />
+          </div>
+        )}
+
+        {/* Admin squad picker */}
+        {canGlobal && scope === 'SQUAD' && (
+          <div style={{ marginBottom: 18 }}>
+            <div style={{ fontFamily: T.fD, fontSize: 12.5, fontWeight: 500, color: T.text2, marginBottom: 8 }}>Target squads</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {squads.map((sq) => {
+                const active = selectedSquads.includes(sq.id);
+                return (
+                  <button key={sq.id} onClick={() => toggleSquad(sq.id)} style={{
+                    padding: '5px 12px', borderRadius: 20, fontFamily: T.fD, fontSize: 12.5, fontWeight: 500, cursor: 'pointer',
+                    border: `1px solid ${active ? T.accent : T.border}`,
+                    background: active ? T.accentGhost : T.surface2,
+                    color: active ? T.accentText : T.text2,
+                  }}>
+                    {sq.name}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Title */}
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ fontFamily: T.fD, fontSize: 12.5, fontWeight: 500, color: T.text2, marginBottom: 6 }}>Title</div>
+          <input value={title} onChange={(e) => setTitle(e.target.value)} style={inputStyle} />
         </div>
 
-        {/* Fields */}
-        {([['Title', title, setTitle, false], ['Body', body, setBody, true]] as [string, string, (v: string) => void, boolean][]).map(([label, val, setter, multi]) => (
-          <div key={label} style={{ marginBottom: 14 }}>
-            <div style={{ fontFamily: T.fD, fontSize: 12.5, fontWeight: 500, color: T.text2, marginBottom: 6 }}>{label}</div>
-            {multi
-              ? <textarea value={val} onChange={(e) => setter(e.target.value)} rows={5}
-                  style={{ width: '100%', background: T.surface2, border: `1px solid ${T.border}`, borderRadius: 9, padding: '10px 13px', outline: 'none', resize: 'vertical', boxSizing: 'border-box', fontFamily: T.fB, fontSize: 13.5, color: T.text, lineHeight: 1.55 }} />
-              : <input value={val} onChange={(e) => setter(e.target.value)}
-                  style={{ width: '100%', background: T.surface2, border: `1px solid ${T.border}`, borderRadius: 9, padding: '10px 13px', outline: 'none', boxSizing: 'border-box', fontFamily: T.fB, fontSize: 13.5, color: T.text }} />}
+        {/* Body — write / preview tabs */}
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+            <div style={{ fontFamily: T.fD, fontSize: 12.5, fontWeight: 500, color: T.text2 }}>Body · Markdown</div>
+            <div style={{ display: 'flex', gap: 4 }}>
+              {(['write', 'preview'] as const).map((tab) => (
+                <button key={tab} onClick={() => setBodyTab(tab)} style={{
+                  padding: '3px 10px', borderRadius: 6, fontSize: 11.5, fontFamily: T.fD, fontWeight: 500, cursor: 'pointer',
+                  border: `1px solid ${bodyTab === tab ? T.accent : T.border}`,
+                  background: bodyTab === tab ? T.accentGhost : 'transparent',
+                  color: bodyTab === tab ? T.accentText : T.text3,
+                }}>
+                  {tab === 'write' ? 'Write' : 'Preview'}
+                </button>
+              ))}
+            </div>
           </div>
-        ))}
+          {bodyTab === 'write'
+            ? <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={7}
+                style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.55 }} />
+            : <div style={{ minHeight: 120, background: T.surface2, border: `1px solid ${T.border}`, borderRadius: 9, padding: '10px 13px' }}>
+                {body.trim()
+                  ? <MarkdownRenderer content={body} small />
+                  : <span style={{ fontFamily: T.fB, fontSize: 13, color: T.text3 }}>Nothing to preview.</span>}
+              </div>
+          }
+        </div>
 
         {error && <div style={{ marginBottom: 14, padding: '10px 13px', borderRadius: 9, background: 'rgba(242,101,79,0.10)', border: '1px solid rgba(242,101,79,0.3)', fontFamily: T.fB, fontSize: 12.5, color: T.loss }}>{error}</div>}
         <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
@@ -232,6 +310,7 @@ function AuthedView() {
       {showPost && (
         <PostModal
           canGlobal={canGlobal}
+          squadId={appUser.squadId ?? null}
           squadName={appUser.squadName}
           onClose={() => setShowPost(false)}
         />

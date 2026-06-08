@@ -44,3 +44,21 @@ func (uc *AnnouncementUseCase) PostSquad(ctx context.Context, authorID, squadID,
 		Body:     body,
 	})
 }
+
+func (uc *AnnouncementUseCase) PostToSquads(ctx context.Context, authorID string, squadIDs []string, title, body string) ([]*domain.Announcement, error) {
+	result := make([]*domain.Announcement, 0, len(squadIDs))
+	for _, sid := range squadIDs {
+		id := sid
+		a, err := uc.announcements.Create(ctx, &domain.Announcement{
+			AuthorID: authorID,
+			SquadID:  &id,
+			Title:    title,
+			Body:     body,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("failed to post to squad %s: %w", id, err)
+		}
+		result = append(result, a)
+	}
+	return result, nil
+}

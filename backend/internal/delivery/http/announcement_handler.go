@@ -51,11 +51,19 @@ func (h *AnnouncementHandler) PostGlobal(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusForbidden, "admin required")
 	}
 	var body struct {
-		Title string `json:"title"`
-		Body  string `json:"body"`
+		Title    string   `json:"title"`
+		Body     string   `json:"body"`
+		SquadIDs []string `json:"squad_ids"`
 	}
 	if err := c.Bind(&body); err != nil || body.Title == "" || body.Body == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "title and body are required")
+	}
+	if len(body.SquadIDs) > 0 {
+		list, err := h.announcements.PostToSquads(c.Request().Context(), userID, body.SquadIDs, body.Title, body.Body)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+		return c.JSON(http.StatusCreated, list)
 	}
 	a, err := h.announcements.PostGlobal(c.Request().Context(), userID, body.Title, body.Body)
 	if err != nil {

@@ -22,8 +22,10 @@ You can authorise with your Supabase JWT directly in the Swagger UI — click **
 | `GET` | `/api/verse` | Daily Bible verse |
 | `GET` | `/api/system/signup-status` | Whether open signup is enabled |
 | `GET` | `/api/invite/validate?token=` | Validate an invitation token |
-| `GET` | `/api/announcements/public` | Latest global announcements |
-| `GET` | `/api/stats/public` | Platform-wide aggregate stats |
+| `POST` | `/api/invite/signup` | Create account via invitation token |
+| `POST` | `/api/invite/use` | Mark an invitation token as used |
+| `GET` | `/api/announcements/public` | Latest global announcements (landing page) |
+| `GET` | `/api/stats/public` | Platform-wide aggregate stats (landing page) |
 
 ### Auth — JWT required (inactive accounts allowed)
 
@@ -53,7 +55,7 @@ You can authorise with your Supabase JWT directly in the Swagger UI — click **
 | `PUT` | `/api/editorials/:editorialID` | Edit own editorial |
 | `DELETE` | `/api/editorials/:editorialID` | Delete own editorial |
 | `POST` | `/api/editorials/:editorialID/vote` | Vote on an editorial (+1 / -1) |
-| `GET` | `/api/announcements` | List announcements |
+| `GET` | `/api/announcements` | List announcements visible to the caller (global + own squad) |
 | `GET` | `/api/squads/:squadID/tracks` | Get squad curriculum |
 
 ### Squad Lead — requires `SQUAD_LEAD` role or above
@@ -65,7 +67,7 @@ You can authorise with your Supabase JWT directly in the Swagger UI — click **
 | `POST` | `/api/squads/:squadID/tracks` | Create curriculum track |
 | `POST` | `/api/tracks/:trackID/topics` | Add topic to track |
 | `POST` | `/api/topics/:topicID/problems` | Assign problem to topic |
-| `POST` | `/api/announcements` | Post squad announcement |
+| `POST` | `/api/announcements` | Post a squad-scoped announcement. Body: `{ squad_id, title, body }`. `squad_id` must match the caller's own squad. |
 | `POST` | `/api/squads/:squadID/contests/sync` | Sync Codeforces contest for squad |
 
 ### Admin — requires `ADMIN` role or above
@@ -73,15 +75,41 @@ You can authorise with your Supabase JWT directly in the Swagger UI — click **
 | Method | Path | Description |
 |--------|------|-------------|
 | `GET` | `/api/admin/users` | List all users |
-| `PUT` | `/api/admin/users/:userID/role` | Set user role |
+| `PUT` | `/api/admin/users/:userID/role` | Set user role. Body: `{ role, squad_id? }` |
 | `PUT` | `/api/admin/users/:userID/squad` | Assign user to squad |
 | `PUT` | `/api/admin/users/:userID/ban` | Ban / unban user |
+| `GET` | `/api/admin/squads` | List all squads |
+| `POST` | `/api/admin/squads` | Create a squad |
+| `PUT` | `/api/admin/squads/:squadID` | Rename a squad |
+| `DELETE` | `/api/admin/squads/:squadID` | Delete a squad |
 | `GET` | `/api/admin/invitations` | List invitations |
-| `POST` | `/api/admin/invitations` | Create invitation |
-| `POST` | `/api/admin/announcements` | Post global announcement |
+| `POST` | `/api/admin/invitations` | Create invitation (sends email via Resend) |
+| `POST` | `/api/admin/announcements` | Post announcement. Body: `{ title, body, squad_ids? }`. If `squad_ids` is provided and non-empty, creates one announcement per squad. If omitted, posts globally. |
 | `POST` | `/api/admin/contests/sync` | Sync any contest (no squad restriction) |
 | `PUT` | `/api/admin/system/signup` | Toggle open signup (**SUPER_ADMIN only**) |
 | `POST` | `/api/admin/repair/stats` | Reconcile all user problem counts |
+
+---
+
+## Announcement scoping
+
+### Squad lead (`POST /api/announcements`)
+
+- `squad_id` **required** in the request body.
+- The backend validates that `squad_id` equals the caller's own assigned squad. Squad leads cannot post to other squads.
+- Announcement is visible only to members of that squad.
+
+### Admin / Super Admin (`POST /api/admin/announcements`)
+
+```json
+// Global — visible to everyone
+{ "title": "...", "body": "..." }
+
+// Squad-targeted — creates one announcement record per squad
+{ "title": "...", "body": "...", "squad_ids": ["uuid-1", "uuid-2"] }
+```
+
+Announcement bodies support **Markdown** and are rendered with GFM (GitHub Flavored Markdown) on the frontend.
 
 ---
 

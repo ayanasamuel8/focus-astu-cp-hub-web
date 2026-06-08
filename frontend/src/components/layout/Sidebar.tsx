@@ -23,6 +23,7 @@ const NAV: NavItem[] = [
   { id: 'editorials',    label: 'Editorials',   icon: 'book',      path: () => '/editorials' },
   { id: 'contests',      label: 'Contests',     icon: 'contests',  path: () => '/contests' },
   { id: 'squad',         label: 'My Squad',     icon: 'squad',     path: () => '/squad', roles: ['SQUAD_MEMBER', 'SQUAD_LEAD', 'ADMIN', 'SUPER_ADMIN'] },
+  { id: 'users',         label: 'Members',      icon: 'profile',   path: () => '/users' },
   { id: 'announcements', label: 'Announcements',icon: 'announce',  path: () => '/announcements' },
   { id: 'profile',       label: 'Profile',      icon: 'profile',   path: (id) => `/profile/${id}` },
   { id: 'settings',      label: 'Settings',     icon: 'settings',  path: () => '/settings/extension' },
@@ -54,6 +55,7 @@ export function Sidebar({ userId, role, userName, squadName }: SidebarProps) {
   function isActive(n: NavItem) {
     const p = n.path(userId);
     if (n.id === 'profile') return location.pathname.startsWith('/profile/');
+    if (n.id === 'users') return location.pathname === '/users';
     return location.pathname === p || location.pathname.startsWith(p + '/');
   }
 

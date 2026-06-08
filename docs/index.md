@@ -37,15 +37,16 @@
 ## High-level architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                          Browser (React SPA)                         │
-│  LandingPage · Dashboard · Problems · Contests · Editorials · Admin  │
-└──────────────────────────┬──────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│                          Browser (React SPA)                              │
+│  Landing · Dashboard · Problems · Contests · Editorials · Squad ·        │
+│  Members · Announcements · Profile · Admin                               │
+└──────────────────────────┬───────────────────────────────────────────────┘
                            │ HTTPS REST  /api/*
-┌──────────────────────────▼──────────────────────────────────────────┐
-│                        Go / Echo  API Server                         │
-│   JWT/API-key auth · Role guards · Usecase layer · Repo layer        │
-└────────────┬───────────────────────────────────────────────────────┘
+┌──────────────────────────▼───────────────────────────────────────────────┐
+│                        Go / Echo  API Server                              │
+│   JWT/API-key auth · Role guards · Usecase layer · Repo layer             │
+└────────────┬─────────────────────────────────────────────────────────────┘
              │
     ┌────────┴────────┐
     │   PostgreSQL    │   Supabase (auth + DB hosting)
@@ -66,7 +67,7 @@
 | Role | Can do |
 |------|--------|
 | `COMMUNITY` | Read public stats & announcements |
-| `SQUAD_MEMBER` | Everything above + log submissions, view problems/contests, write editorials |
-| `SQUAD_LEAD` | Everything above + manage squad curriculum, post squad announcements |
-| `ADMIN` | Everything above + manage users, invitations, global announcements |
+| `SQUAD_MEMBER` | Everything above + log submissions, view problems/contests, write editorials, browse member directory |
+| `SQUAD_LEAD` | Everything above + manage squad curriculum, post squad announcements, sync contests |
+| `ADMIN` | Everything above + manage users/squads/invitations, post global or squad-targeted announcements |
 | `SUPER_ADMIN` | Everything above + toggle open signup |

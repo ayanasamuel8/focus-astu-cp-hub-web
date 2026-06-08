@@ -59,15 +59,31 @@ export function usePublicAnnouncementsFull() {
   });
 }
 
+export type PostPayload =
+  | { scope: 'GLOBAL';     title: string; body: string }
+  | { scope: 'SQUAD';      title: string; body: string; squad_id: string }
+  | { scope: 'SQUAD_IDS';  title: string; body: string; squad_ids: string[] };
+
 // Post announcement
 export function useCreateAnnouncement() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload: { title: string; body: string; scope: 'GLOBAL' | 'SQUAD' }) => {
-      const url = payload.scope === 'GLOBAL'
-        ? '/api/admin/announcements'
-        : '/api/announcements';
-      return api.post(url, { title: payload.title, body: payload.body });
+    mutationFn: (payload: PostPayload) => {
+      if (payload.scope === 'SQUAD') {
+        return api.post('/api/announcements', {
+          squad_id: payload.squad_id,
+          title: payload.title,
+          body: payload.body,
+        });
+      }
+      if (payload.scope === 'SQUAD_IDS') {
+        return api.post('/api/admin/announcements', {
+          squad_ids: payload.squad_ids,
+          title: payload.title,
+          body: payload.body,
+        });
+      }
+      return api.post('/api/admin/announcements', { title: payload.title, body: payload.body });
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['announcements'] });

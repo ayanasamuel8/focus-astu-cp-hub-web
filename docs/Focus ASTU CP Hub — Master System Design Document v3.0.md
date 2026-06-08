@@ -8,7 +8,7 @@ Focus ASTU Competitive Programming Community
 
 Adama Science and Technology University
 
-Document Status: Final Draft  |  May 2026
+Document Status: Living Document  |  Updated June 2026
 
 # **Table of Contents**
 
@@ -202,11 +202,13 @@ The platform consists of three interconnected components:
 | Code Viewing | Submitted code is stored and viewable by all members with syntax highlighting. No code execution is performed. |
 | Contest Sync | Admins sync Codeforces contests by contest ID. The system fetches standings, maps participants to portal users, and tracks upsolves. |
 | Editorials | Any member can write a Markdown editorial for any problem. |
-| Squad Curriculum Tracks | Squad Leads design curriculum trees (Track → Topics → Problems) for their squad. |
-| Announcements | Global announcements (from Admins) and squad-scoped announcements (from Squad Leads). |
+| Squad Curriculum Tracks | Squad Leads design curriculum trees (Track → Topics → Problems). Problem names link externally; each row has an Editorial shortcut and inline Submit button for unsolved problems. |
+| Announcements | Markdown-formatted. Squad Leads post to their own squad. Admins post globally or target specific squads (array of IDs). |
 | Browser Extension | Auto-captures accepted solutions from LeetCode, Codeforces, and AtCoder and submits them to the portal silently. |
 | Daily Verse | A Bible verse fetched from a public API, cached server-side, and displayed on the Landing Page. |
-| Admin Dashboard | User management, role assignment, squad assignment, ban management, and contest sync. |
+| Admin Dashboard | User management (role + squad combined assignment, ban), squad CRUD, invitation system (email via Resend), contest sync, and a repair tool for problem counts. |
+| Member Directory | All active members listed and searchable by name or Codeforces handle, filterable by squad. Each row links to the member's profile. |
+| Legal Pages | Privacy Policy and Terms of Service pages with consent captured at signup and profile completion. |
 
 ## **2.2  Design Constraints**
 
@@ -735,7 +737,7 @@ Triggered by: GET /api/verse
 | POST | /api/squads/:squadID/tracks | Create a new curriculum track. |
 | POST | /api/tracks/:trackID/topics | Add a topic to a track. |
 | POST | /api/topics/:topicID/problems | Assign a problem to a topic. |
-| POST | /api/announcements | Post a squad-scoped announcement. |
+| POST | /api/announcements | Post a squad-scoped announcement. Body: `{ squad_id, title, body }`. `squad_id` must equal the caller's own squad. |
 | POST | /api/squads/:squadID/contests/sync | Sync a Codeforces contest for own squad. Body: {"contest\_id":"1932"} |
 
 ### **Admin & Super Admin Endpoints**
@@ -743,13 +745,19 @@ Triggered by: GET /api/verse
 | Method | Path | Description |
 | :---- | :---- | :---- |
 | GET | /api/admin/users | List all users with full metadata. |
-| PUT | /api/admin/users/:userID/role | Update a user's role. Body: {"role":"SQUAD\_LEAD"} |
+| PUT | /api/admin/users/:userID/role | Update a user's role. Body: {"role":"SQUAD\_LEAD", "squad\_id":"..."} |
 | PUT | /api/admin/users/:userID/squad | Assign user to a squad. Body: {"squad\_id":"..."} |
 | PUT | /api/admin/users/:userID/ban | Ban or unban a user. Body: {"is\_banned":true} |
-| POST | /api/admin/invitations | Generate an invitation. Body: {"email":"..."} |
+| GET | /api/admin/squads | List all squads. |
+| POST | /api/admin/squads | Create a squad. Body: {"name":"..."} |
+| PUT | /api/admin/squads/:squadID | Rename a squad. Body: {"name":"..."} |
+| DELETE | /api/admin/squads/:squadID | Delete a squad. |
+| GET | /api/admin/invitations | List all invitations. |
+| POST | /api/admin/invitations | Generate an invitation; sends email via Resend. Body: {"email":"..."} |
 | POST | /api/admin/contests/sync | Sync any Codeforces contest (cross-squad). Body: {"contest\_id":"1932"} |
-| POST | /api/admin/announcements | Post a global announcement. |
+| POST | /api/admin/announcements | Post announcement. Body: `{ title, body }` for global; `{ title, body, squad_ids: [...] }` to target specific squads (creates one record per squad). |
 | PUT | /api/admin/system/signup | (Super Admin only) Toggle {"open":true} |
+| POST | /api/admin/repair/stats | Reconcile all user problem counts from actual submissions. |
 
 ## **7.4  Background Services**
 
@@ -814,14 +822,18 @@ For simple read operations that do not require Go business logic (e.g., listing 
 | │   ├── features/ |
 | │   │   ├── landing/                    \# LandingPage (public), LandingNavbar |
 | │   │   ├── auth/                       \# LoginPage, SignupPage, InvitePage, |
-| │   │   │                               \#   CompleteProfilePage, ProtectedRoute |
-| │   │   ├── dashboard/                  \# DashboardPage (verse \+ stats \+ activity) |
+| │   │   │                               \#   CompleteProfilePage, ForgotPasswordPage, |
+| │   │   │                               \#   ResetPasswordPage, ProtectedRoute |
+| │   │   ├── dashboard/                  \# DashboardPage (stats \+ activity) |
 | │   │   ├── problems/                   \# ProblemsPage, SubmissionViewPage, |
-| │   │   │                               \#   EditorialPage, ProblemFilters |
+| │   │   │                               \#   EditorialPage, LogSolveModal, AddProblemModal |
 | │   │   ├── contests/                   \# ContestsPage, ContestDetailPage |
-| │   │   ├── profile/                    \# ProfilePage (badges, handles, streaks) |
-| │   │   ├── squad/                      \# SquadPage (curriculum tree accordion) |
-| │   │   ├── announcements/              \# AnnouncementsPage |
+| │   │   ├── profile/                    \# ProfilePage (badges, handles, streaks, heatmap) |
+| │   │   ├── squad/                      \# SquadPage (mobile-responsive curriculum tree) |
+| │   │   ├── announcements/              \# AnnouncementsPage (Markdown, write/preview) |
+| │   │   ├── users/                      \# UsersPage (member directory) |
+| │   │   ├── editorials/                 \# EditorialsListPage |
+| │   │   ├── legal/                      \# PrivacyPage, TermsPage |
 | │   │   └── admin/                      \# AdminPage (lazy-loaded) |
 | │   ├── hooks/                          \# useAuth, useUserProfile |
 | │   ├── lib/                            \# supabase.ts, api.ts (Axios \+ JWT) |
@@ -836,20 +848,27 @@ For simple read operations that do not require Go business logic (e.g., listing 
 | Route | Access | Key Functionality |
 | :---- | :---- | :---- |
 | / | Public | Landing page: hero, daily verse, global announcements feed, community stats. Public navbar with Announcements and Dashboard links. |
-| /login | Public | Email \+ magic link via Supabase Auth |
+| /announcements | Public \+ Auth | Public: global announcements only (read-only). Authenticated: global \+ squad-scoped. Markdown-rendered bodies. Squad Leads and Admins see a Post button with Write/Preview tabs. |
+| /privacy | Public | Privacy Policy page |
+| /terms | Public | Terms of Service page |
+| /login | Public | Email \+ password via Supabase Auth |
 | /signup | Public (if open) | Standard email signup via Supabase Auth |
-| /invite | Public | Token validation, locked email signup |
-| /complete-profile | Auth \+ inactive | Mandatory profile form; sets is\_active \= true |
-| /dashboard | Auth \+ active | Daily verse card, personal stats, recent activity |
-| /problems | Auth \+ active | Filterable problem list with platform badges and submission accordion |
+| /invite | Public | Token validation, locked email signup (bypasses email verification) |
+| /forgot-password | Public | Request a password reset email |
+| /reset-password | Public | Set new password from Supabase recovery link |
+| /complete-profile | Auth \+ inactive | Mandatory profile form with Privacy Policy / Terms of Service consent; sets is\_active \= true |
+| /dashboard | Auth \+ active | Personal stats, recent activity, quick links |
+| /problems | Auth \+ active | Filterable problem list with platform badges, full-text search, and Log Solve modal |
 | /submissions/:id | Auth \+ active | Syntax-highlighted code viewer with copy button |
-| /problems/:id/editorials | Auth \+ active | Read and write Markdown editorials |
+| /problems/:id/editorials | Auth \+ active | Read and write Markdown editorials with upvote/downvote |
+| /editorials | Auth \+ active | Browse all editorials across all problems |
 | /contests | Auth \+ active | List of synced contests with date and participant count |
 | /contests/:id | Auth \+ active | Standings table with upsolve toggle |
-| /profile/:userID | Auth \+ active | Badges, platform handles, streaks, recent submissions |
-| /squad | SQUAD\_MEMBER+ | Curriculum tree: Track → Topics → Problems |
-| /announcements | Public \+ Auth | Public: global announcements only. Authenticated: global \+ squad-scoped. Squad Leads and Admins see a Post button. |
-| /admin | ADMIN+ | User management, role/squad controls, ban toggle, invitations, contest sync |
+| /profile/:userID | Auth \+ active | Any member's profile: badges, platform handles, activity heatmap, streaks, recent submissions, role history |
+| /users | Auth \+ active | Member directory: search by name/CF handle, filter by squad, click to open profile |
+| /squad | SQUAD\_MEMBER+ | Mobile-responsive curriculum tree (Track → Topic → Problem). Problem names link externally; each row has Editorial shortcut and Submit button for unsolved problems. Roster members link to profiles. |
+| /settings/extension | Auth \+ active | Manage API key for browser extension |
+| /admin | ADMIN+ | User management, squad CRUD, role/squad assignment, ban toggle, invitations (email via Resend), contest sync |
 
 ## **8.4  Browser Extension Integration**
 
@@ -933,8 +952,10 @@ The application uses a sidebar-based navigation model for all authenticated page
 | :---- | :---- | :---- |
 | Dashboard | /dashboard | All authenticated active users |
 | Problems | /problems | All authenticated active users |
+| Editorials | /editorials | All authenticated active users |
 | Contests | /contests | All authenticated active users |
-| My Squad | /squad | SQUAD\_MEMBER, SQUAD\_LEAD |
+| My Squad | /squad | SQUAD\_MEMBER, SQUAD\_LEAD, ADMIN, SUPER\_ADMIN |
+| Members | /users | All authenticated active users |
 | Announcements | /announcements | All authenticated active users |
 | Profile | /profile/:myUserID | All authenticated active users |
 | Settings | /settings/extension | All authenticated active users |

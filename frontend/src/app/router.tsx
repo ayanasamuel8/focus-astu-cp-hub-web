@@ -24,6 +24,7 @@ import ContestsPage from '../features/contests/ContestsPage';
 import ContestDetailPage from '../features/contests/ContestDetailPage';
 import ProfilePage from '../features/profile/ProfilePage';
 import SquadPage from '../features/squad/SquadPage';
+import UsersPage from '../features/users/UsersPage';
 import AnnouncementsPage from '../features/announcements/AnnouncementsPage';
 import SettingsPage from '../features/settings/SettingsPage';
 
@@ -150,6 +151,7 @@ const router = createBrowserRouter([
       { path: '/contests',               element: <PageErrorBoundary><ContestsPage /></PageErrorBoundary> },
       { path: '/contests/:id',           element: <PageErrorBoundary><ContestDetailPage /></PageErrorBoundary> },
       { path: '/profile/:userId',        element: <PageErrorBoundary><ProfilePage /></PageErrorBoundary> },
+      { path: '/users',                  element: <PageErrorBoundary><UsersPage /></PageErrorBoundary> },
       { path: '/settings/extension',     element: <PageErrorBoundary><SettingsPage /></PageErrorBoundary> },
       // Squad — SQUAD_MEMBER+
       {
