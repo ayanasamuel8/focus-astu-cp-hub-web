@@ -142,7 +142,7 @@ export function useGenerateInvitation() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (email: string) =>
-      api.post<{ token: string; invite_url: string }>('/api/admin/invitations', { email }),
+      api.post<{ token: string; invite_url: string; email_sent: boolean; email_warning?: string }>('/api/admin/invitations', { email }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-invitations'] }),
   });
 }

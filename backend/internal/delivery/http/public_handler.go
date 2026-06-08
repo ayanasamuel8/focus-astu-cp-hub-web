@@ -80,7 +80,27 @@ func (h *PublicHandler) ValidateInvite(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusGone, err.Error())
 	}
-	return c.JSON(http.StatusOK, map[string]string{"email": inv.Email, "token": inv.Token})
+	return c.JSON(http.StatusOK, map[string]any{
+		"email":      inv.Email,
+		"token":      inv.Token,
+		"expires_at": inv.ExpiresAt,
+	})
+}
+
+func (h *PublicHandler) UseInvite(c echo.Context) error {
+	var body struct {
+		Token string `json:"token"`
+	}
+	if err := c.Bind(&body); err != nil || body.Token == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "token is required")
+	}
+	if _, err := h.invitations.Validate(c.Request().Context(), body.Token); err != nil {
+		return echo.NewHTTPError(http.StatusGone, err.Error())
+	}
+	if err := h.invitations.MarkUsed(c.Request().Context(), body.Token); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, map[string]string{"status": "used"})
 }
 
 func (h *PublicHandler) PublicAnnouncements(c echo.Context) error {

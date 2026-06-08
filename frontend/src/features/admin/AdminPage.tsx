@@ -307,7 +307,7 @@ function UsersTab({ isSuperAdmin, selfId, isMobile }: { isSuperAdmin: boolean; s
 // ── Invitations tab ───────────────────────────────────────────────────────
 function InvitationsTab({ isMobile }: { isMobile: boolean }) {
   const [email, setEmail]           = useState('');
-  const [generated, setGenerated]   = useState<{ url: string } | null>(null);
+  const [generated, setGenerated]   = useState<{ url: string; emailSent: boolean; emailWarning?: string } | null>(null);
   const [genError, setGenError]     = useState('');
   const [copiedIdx, setCopiedIdx]   = useState<string | null>(null);
   const { data: invitations = [] }  = useInvitations();
@@ -318,7 +318,7 @@ function InvitationsTab({ isMobile }: { isMobile: boolean }) {
     setGenError(''); setGenerated(null);
     try {
       const res = await mutateAsync(email.trim());
-      setGenerated({ url: res.data.invite_url });
+      setGenerated({ url: res.data.invite_url, emailSent: res.data.email_sent, emailWarning: res.data.email_warning });
       setEmail('');
     } catch (e: unknown) {
       const msg = (e as { response?: { data?: { error?: string } } })?.response?.data?.error;
@@ -352,7 +352,20 @@ function InvitationsTab({ isMobile }: { isMobile: boolean }) {
         {genError && <div style={{ marginBottom: 12, padding: '10px 13px', borderRadius: 9, background: 'rgba(242,101,79,0.10)', border: '1px solid rgba(242,101,79,0.3)', fontFamily: T.fB, fontSize: 12.5, color: T.loss }}>{genError}</div>}
         {generated && (
           <div style={{ marginBottom: 14, padding: '12px 13px', borderRadius: 10, background: T.accentGhost, border: `1px solid ${T.accentLine}` }}>
-            <div style={{ fontFamily: T.fD, fontSize: 12.5, fontWeight: 600, color: T.accentText, marginBottom: 6 }}>Invite link generated</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 6 }}>
+              <div style={{ fontFamily: T.fD, fontSize: 12.5, fontWeight: 600, color: T.accentText, flex: 1 }}>
+                Invite link generated
+              </div>
+              {generated.emailSent
+                ? <span style={{ fontFamily: T.fM, fontSize: 10, color: T.gain }}>✓ Email sent</span>
+                : <span style={{ fontFamily: T.fM, fontSize: 10, color: T.warn }}>⚠ Email not sent</span>
+              }
+            </div>
+            {generated.emailWarning && (
+              <div style={{ fontFamily: T.fB, fontSize: 11, color: T.warn, marginBottom: 6, lineHeight: 1.4 }}>
+                {generated.emailWarning}
+              </div>
+            )}
             <div className="mono" style={{ fontSize: 11, color: T.text2, wordBreak: 'break-all', marginBottom: 8 }}>{generated.url}</div>
             <Btn kind="accentGhost" size="sm" icon="copy" full onClick={() => handleCopy(generated.url, 'new')}>
               {copiedIdx === 'new' ? 'Copied!' : 'Copy link'}

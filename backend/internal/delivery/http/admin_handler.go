@@ -149,7 +149,18 @@ func (h *AdminHandler) CreateInvitation(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusCreated, inv)
+	inviteURL := h.invitations.SiteURL() + "/invite?token=" + inv.Token
+	emailErr  := h.invitations.SendEmail(c.Request().Context(), body.Email, inv.Token)
+	resp := map[string]any{
+		"id":         inv.ID,
+		"token":      inv.Token,
+		"invite_url": inviteURL,
+		"email_sent": emailErr == nil,
+	}
+	if emailErr != nil {
+		resp["email_warning"] = emailErr.Error()
+	}
+	return c.JSON(http.StatusCreated, resp)
 }
 
 func (h *AdminHandler) ListInvitations(c echo.Context) error {

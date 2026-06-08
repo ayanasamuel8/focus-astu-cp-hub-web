@@ -54,8 +54,11 @@ export default function InvitePage() {
       ? await supabase.auth.updateUser({ password })
       : await supabase.auth.signUp({ email: inviteEmail, password });
 
-    setLoading(false);
-    if (err) { setError(err.message); return; }
+    if (err) { setError(err.message); setLoading(false); return; }
+
+    // Mark token as used so it can't be replayed
+    try { await api.post('/api/invite/use', { token }); } catch { /* best-effort */ }
+
     navigate('/complete-profile');
   }
 

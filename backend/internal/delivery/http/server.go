@@ -40,6 +40,7 @@ func NewServer(
 	api.GET("/verse", public.Verse)
 	api.GET("/system/signup-status", public.SignupStatus)
 	api.GET("/invite/validate", public.ValidateInvite)
+	api.POST("/invite/use", public.UseInvite)
 	api.GET("/announcements/public", public.PublicAnnouncements)
 	api.GET("/stats/public", public.PublicStats)
 

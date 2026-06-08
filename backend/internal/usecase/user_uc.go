@@ -242,28 +242,31 @@ func (uc *InvitationUseCase) Create(ctx context.Context, email, createdBy string
 		CreatedBy: &createdBy,
 		ExpiresAt: time.Now().Add(72 * time.Hour),
 	}
-	inv, err := uc.invitations.Create(ctx, inv)
-	if err != nil {
-		return nil, err
-	}
-
-	// Best-effort: send invitation email via Supabase admin API.
-	if uc.supabaseURL != "" && uc.supabaseServiceRoleKey != "" {
-		if err := uc.sendSupabaseInvite(ctx, email, token); err != nil {
-			log.Printf("supabase invite email for %s: %v", email, err)
-		}
-	}
-
-	return inv, nil
+	return uc.invitations.Create(ctx, inv)
 }
 
-func (uc *InvitationUseCase) sendSupabaseInvite(ctx context.Context, email, token string) error {
+// SendEmail sends the invitation email via Supabase.
+// It tries the admin invite endpoint first; if the user already exists in
+// Supabase auth (422) it falls back to a magic-link email.
+func (uc *InvitationUseCase) SendEmail(ctx context.Context, email, token string) error {
+	if uc.supabaseURL == "" || uc.supabaseServiceRoleKey == "" {
+		return fmt.Errorf("SUPABASE_SERVICE_ROLE_KEY is not configured")
+	}
 	redirectTo := uc.siteURL + "/invite?token=" + token
+	if err := uc.supabaseAdminInvite(ctx, email, redirectTo); err != nil {
+		log.Printf("supabase admin invite for %s failed (%v), trying magic link fallback", email, err)
+		return uc.supabaseGenerateLink(ctx, email, redirectTo)
+	}
+	return nil
+}
+
+func (uc *InvitationUseCase) SiteURL() string { return uc.siteURL }
+
+func (uc *InvitationUseCase) supabaseAdminInvite(ctx context.Context, email, redirectTo string) error {
 	body, _ := json.Marshal(map[string]any{
 		"email":       email,
 		"redirect_to": redirectTo,
 	})
-
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost,
 		uc.supabaseURL+"/auth/v1/admin/invite", bytes.NewReader(body))
 	if err != nil {
@@ -278,9 +281,36 @@ func (uc *InvitationUseCase) sendSupabaseInvite(ctx context.Context, email, toke
 		return err
 	}
 	defer resp.Body.Close()
-
 	if resp.StatusCode >= 300 {
-		return fmt.Errorf("supabase invite returned %d", resp.StatusCode)
+		return fmt.Errorf("supabase admin invite returned %d", resp.StatusCode)
+	}
+	return nil
+}
+
+func (uc *InvitationUseCase) supabaseGenerateLink(ctx context.Context, email, redirectTo string) error {
+	body, _ := json.Marshal(map[string]any{
+		"type":  "magiclink",
+		"email": email,
+		"options": map[string]string{
+			"redirect_to": redirectTo,
+		},
+	})
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost,
+		uc.supabaseURL+"/auth/v1/admin/generate_link", bytes.NewReader(body))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("apikey", uc.supabaseServiceRoleKey)
+	req.Header.Set("Authorization", "Bearer "+uc.supabaseServiceRoleKey)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 300 {
+		return fmt.Errorf("supabase generate_link returned %d", resp.StatusCode)
 	}
 	return nil
 }
