@@ -54,7 +54,7 @@ func main() {
 	squadUC        := usecase.NewSquadUseCase(squadRepo, problemRepo)
 	editorialUC    := usecase.NewEditorialUseCase(editorialRepo)
 	announcementUC := usecase.NewAnnouncementUseCase(announcementRepo)
-	invitationUC   := usecase.NewInvitationUseCase(invitationRepo, cfg.SupabaseURL, cfg.SupabaseServiceRoleKey, cfg.SiteURL)
+	invitationUC   := usecase.NewInvitationUseCase(invitationRepo, cfg.SupabaseURL, cfg.SupabaseServiceRoleKey, cfg.SiteURL, cfg.ResendAPIKey, cfg.ResendFrom)
 
 	// Warm verse cache before accepting traffic
 	verseUC.WarmCache(ctx)

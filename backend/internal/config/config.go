@@ -15,6 +15,8 @@ type Config struct {
 	JWKSUrl                string
 	SupabaseServiceRoleKey string
 	SiteURL                string
+	ResendAPIKey           string
+	ResendFrom             string
 }
 
 func Load() (*Config, error) {
@@ -28,7 +30,9 @@ func Load() (*Config, error) {
 		SupabaseURL:            supabaseURL,
 		JWKSUrl:                supabaseURL + "/auth/v1/.well-known/jwks.json",
 		SupabaseServiceRoleKey: os.Getenv("SUPABASE_SERVICE_ROLE_KEY"),
-		SiteURL:                strings.TrimRight(getEnv("SITE_URL", "https://focus-astu-cp-hub-web.onrender.com"), "/"),
+		SiteURL:                strings.TrimRight(getEnv("SITE_URL", "https://www.focuscphub.tech"), "/"),
+		ResendAPIKey:           os.Getenv("RESEND_API_KEY"),
+		ResendFrom:             getEnv("RESEND_FROM", "Focus ASTU CP Hub <noreply@focuscphub.tech>"),
 	}
 
 	if cfg.DatabaseURL == "" {
