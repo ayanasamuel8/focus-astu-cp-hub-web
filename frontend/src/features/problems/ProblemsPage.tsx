@@ -264,7 +264,7 @@ export default function ProblemsPage() {
   const w = useWindowWidth();
   const isMobile = w < BREAKPOINTS.tablet;
 
-  const { data, isLoading } = useProblems({ platform, search: debouncedSearch, page, pageSize: PAGE_SIZE });
+  const { data, isLoading, isFetching } = useProblems({ platform, search: debouncedSearch, page, pageSize: PAGE_SIZE });
   const { data: solvedIds = new Set<string>() } = useMySubmittedProblemIds(user?.id);
 
   const problems = data?.problems ?? [];
@@ -363,15 +363,15 @@ export default function ProblemsPage() {
             <span style={{ width: 16 }} />
           </div>
 
-          {isLoading && [1,2,3,4,5,6].map((i) => <TableRowSk key={i} />)}
+          {isFetching && [1,2,3,4,5,6].map((i) => <TableRowSk key={i} />)}
 
-          {!isLoading && displayed.length === 0 && (
+          {!isFetching && displayed.length === 0 && (
             <div style={{ padding: '32px', textAlign: 'center', fontFamily: T.fB, fontSize: 14, color: T.text3 }}>
               No problems found.
             </div>
           )}
 
-          {displayed.map((pr) => (
+          {!isFetching && displayed.map((pr) => (
             <ProblemRow
               key={pr.id}
               problem={pr}
