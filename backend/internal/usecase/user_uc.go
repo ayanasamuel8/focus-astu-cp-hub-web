@@ -139,7 +139,7 @@ func NewAdminUserUseCase(users domain.UserRepository, squads domain.SquadReposit
 	return &AdminUserUseCase{users: users, squads: squads}
 }
 
-func (uc *AdminUserUseCase) SetRole(ctx context.Context, callerID string, callerRole domain.Role, targetUserID string, newRole domain.Role) error {
+func (uc *AdminUserUseCase) SetRole(ctx context.Context, callerID string, callerRole domain.Role, targetUserID string, newRole domain.Role, squadID *string) error {
 	if callerID == targetUserID {
 		return fmt.Errorf("cannot change your own role")
 	}
@@ -163,7 +163,23 @@ func (uc *AdminUserUseCase) SetRole(ctx context.Context, callerID string, caller
 	}
 
 	target.Role = newRole
+	if squadID != nil {
+		target.SquadID = squadID
+	}
 	return uc.users.Update(ctx, target)
+}
+
+func (uc *AdminUserUseCase) UpdateSquad(ctx context.Context, squadID, name string) (*domain.Squad, error) {
+	s, err := uc.squads.GetByID(ctx, squadID)
+	if err != nil {
+		return nil, err
+	}
+	s.Name = name
+	return uc.squads.Update(ctx, s)
+}
+
+func (uc *AdminUserUseCase) DeleteSquad(ctx context.Context, squadID string) error {
+	return uc.squads.Delete(ctx, squadID)
 }
 
 func (uc *AdminUserUseCase) SetSquad(ctx context.Context, targetUserID string, squadID *string) error {

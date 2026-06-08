@@ -37,8 +37,8 @@ export function useAdminUsers() {
 export function useUpdateRole() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ userId, role }: { userId: string; role: string }) =>
-      api.put(`/api/admin/users/${userId}/role`, { role }),
+    mutationFn: ({ userId, role, squadId }: { userId: string; role: string; squadId?: string | null }) =>
+      api.put(`/api/admin/users/${userId}/role`, { role, squad_id: squadId ?? undefined }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-users'] }),
   });
 }
@@ -84,6 +84,30 @@ export function useCreateSquad() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['squads'] });
       qc.invalidateQueries({ queryKey: ['admin-squads'] });
+    },
+  });
+}
+
+export function useUpdateSquadName() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ squadId, name }: { squadId: string; name: string }) =>
+      api.put<Squad>(`/api/admin/squads/${squadId}`, { name }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['squads'] });
+      qc.invalidateQueries({ queryKey: ['admin-users'] });
+    },
+  });
+}
+
+export function useDeleteSquad() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (squadId: string) =>
+      api.delete(`/api/admin/squads/${squadId}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['squads'] });
+      qc.invalidateQueries({ queryKey: ['admin-users'] });
     },
   });
 }

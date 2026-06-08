@@ -16,6 +16,7 @@ import { UserRowSk, StatCardSk } from '../../components/ui/Skeleton';
 import {
   useAdminUsers, useSquads, useUpdateRole, useUpdateSquad, useUpdateBan,
   useInvitations, useGenerateInvitation, useCreateSquad,
+  useUpdateSquadName, useDeleteSquad,
   useSignupStatus, useToggleSignup,
   useRecentSyncs,
   type AdminUser,
@@ -118,12 +119,13 @@ function UserRow({ user, squads, maxRole, selfId, isMobile }: {
   selfId: string;
   isMobile: boolean;
 }) {
-  const { mutate: updateRole }  = useUpdateRole();
+  const { mutate: updateRole, isPending: rolePending }  = useUpdateRole();
   const { mutate: updateSquad } = useUpdateSquad();
+  const [pendingRole, setPendingRole]       = useState<string | null>(null);
+  const [pendingSquadId, setPendingSquadId] = useState<string>('');
 
   const maxTier    = ROLE_ORDER.indexOf(maxRole);
   const targetTier = ROLE_ORDER.indexOf(user.role as Role);
-  // Lock the row if this user is at/above the actor's assignable ceiling, or is self
   const roleLocked = user.id === selfId || targetTier >= maxTier;
 
   const roleOptions = ROLE_ORDER
@@ -134,72 +136,106 @@ function UserRow({ user, squads, maxRole, selfId, isMobile }: {
     ...squads.map((s) => ({ value: s.id, label: s.name })),
   ];
 
+  function handleRoleChange(newRole: string) {
+    if (newRole === 'SQUAD_MEMBER' || newRole === 'SQUAD_LEAD') {
+      setPendingRole(newRole);
+      setPendingSquadId(user.squad_id ?? '');
+    } else {
+      updateRole({ userId: user.id, role: newRole, squadId: null });
+    }
+  }
+
+  function confirmRoleChange() {
+    if (!pendingRole) return;
+    updateRole({ userId: user.id, role: pendingRole, squadId: pendingSquadId || null }, {
+      onSuccess: () => setPendingRole(null),
+    });
+  }
+
+  const squadPickerBanner = pendingRole && (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', padding: '8px 18px 10px', background: T.accentGhost, borderTop: `1px solid ${T.accentLine}` }}>
+      <span style={{ fontFamily: T.fM, fontSize: 11, color: T.accentText, letterSpacing: 0.3 }}>
+        Assigning as {ROLE_META[pendingRole as Role]?.label ?? pendingRole} — pick a squad:
+      </span>
+      <Pill value={pendingSquadId} options={squadOptions} onChange={setPendingSquadId} />
+      <Btn kind="accentGhost" size="sm" disabled={rolePending} onClick={confirmRoleChange}>
+        {rolePending ? 'Saving…' : 'Confirm'}
+      </Btn>
+      <Btn kind="ghost" size="sm" onClick={() => setPendingRole(null)}>Cancel</Btn>
+    </div>
+  );
+
   if (isMobile) {
     return (
       <div style={{
-        padding: '12px 14px', borderTop: `1px solid ${T.borderSoft}`,
+        borderTop: `1px solid ${T.borderSoft}`,
         background: user.is_banned ? 'rgba(242,101,79,0.05)' : 'transparent',
         opacity: user.is_banned ? 0.85 : 1,
       }}>
-        {/* Row 1: avatar + name/email */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-          <Avatar name={user.full_name} size={30} banned={user.is_banned} />
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontFamily: T.fD, fontSize: 13, fontWeight: 500, color: user.is_banned ? T.text2 : T.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {user.full_name}
+        <div style={{ padding: '12px 14px' }}>
+          {/* Row 1: avatar + name/email */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+            <Avatar name={user.full_name} size={30} banned={user.is_banned} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontFamily: T.fD, fontSize: 13, fontWeight: 500, color: user.is_banned ? T.text2 : T.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {user.full_name}
+              </div>
+              <div className="mono" style={{ fontSize: 10, color: T.text3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</div>
             </div>
-            <div className="mono" style={{ fontSize: 10, color: T.text3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</div>
+            <span className="mono" style={{ fontSize: 11, color: T.text2, flexShrink: 0 }}>{user.problem_count} solved</span>
           </div>
-          <span className="mono" style={{ fontSize: 11, color: T.text2, flexShrink: 0 }}>{user.problem_count} solved</span>
-        </div>
-        {/* Row 2: squad + role + ban */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <Pill value={user.squad_id ?? ''} options={squadOptions} onChange={(v) => updateSquad({ userId: user.id, squadId: v || null })} />
-          {roleLocked
-            ? <span style={{ fontFamily: T.fD, fontSize: 11.5, fontWeight: 500, color: ROLE_META[user.role as Role]?.c ?? T.text2, background: T.surface3, border: `1px solid ${T.border}`, borderRadius: 7, padding: '4px 9px', opacity: 0.7 }}>
-                {ROLE_META[user.role as Role]?.label ?? user.role}
-              </span>
-            : <Pill value={user.role} options={roleOptions} onChange={(v) => updateRole({ userId: user.id, role: v })} color={ROLE_META[user.role as Role]?.c ?? T.text2} />
-          }
-          <div style={{ marginLeft: 'auto' }}>
-            <BanToggle userId={user.id} isBanned={user.is_banned} isSelf={user.id === selfId} />
+          {/* Row 2: squad + role + ban */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <Pill value={user.squad_id ?? ''} options={squadOptions} onChange={(v) => updateSquad({ userId: user.id, squadId: v || null })} />
+            {roleLocked
+              ? <span style={{ fontFamily: T.fD, fontSize: 11.5, fontWeight: 500, color: ROLE_META[user.role as Role]?.c ?? T.text2, background: T.surface3, border: `1px solid ${T.border}`, borderRadius: 7, padding: '4px 9px', opacity: 0.7 }}>
+                  {ROLE_META[user.role as Role]?.label ?? user.role}
+                </span>
+              : <Pill value={user.role} options={roleOptions} onChange={handleRoleChange} color={ROLE_META[user.role as Role]?.c ?? T.text2} />
+            }
+            <div style={{ marginLeft: 'auto' }}>
+              <BanToggle userId={user.id} isBanned={user.is_banned} isSelf={user.id === selfId} />
+            </div>
           </div>
         </div>
+        {squadPickerBanner}
       </div>
     );
   }
 
   return (
     <div style={{
-      display: 'flex', alignItems: 'center', gap: 14, padding: '12px 18px',
       borderTop: `1px solid ${T.borderSoft}`,
       background: user.is_banned ? 'rgba(242,101,79,0.05)' : 'transparent',
       opacity: user.is_banned ? 0.85 : 1,
     }}>
-      <Avatar name={user.full_name} size={32} banned={user.is_banned} />
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontFamily: T.fD, fontSize: 13.5, fontWeight: 500, color: user.is_banned ? T.text2 : T.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          {user.full_name}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 18px' }}>
+        <Avatar name={user.full_name} size={32} banned={user.is_banned} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontFamily: T.fD, fontSize: 13.5, fontWeight: 500, color: user.is_banned ? T.text2 : T.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {user.full_name}
+          </div>
+          <div className="mono" style={{ fontSize: 10.5, color: T.text3 }}>{user.email}</div>
         </div>
-        <div className="mono" style={{ fontSize: 10.5, color: T.text3 }}>{user.email}</div>
+        <div style={{ width: 130 }}>
+          <Pill value={user.squad_id ?? ''} options={squadOptions} onChange={(v) => updateSquad({ userId: user.id, squadId: v || null })} />
+        </div>
+        <div style={{ width: 150 }}>
+          {roleLocked
+            ? <span style={{ fontFamily: T.fD, fontSize: 11.5, fontWeight: 500, color: ROLE_META[user.role as Role]?.c ?? T.text2, background: T.surface3, border: `1px solid ${T.border}`, borderRadius: 7, padding: '4px 9px', opacity: 0.7, display: 'inline-block' }}>
+                {ROLE_META[user.role as Role]?.label ?? user.role}
+              </span>
+            : <Pill value={user.role} options={roleOptions} onChange={handleRoleChange} color={ROLE_META[user.role as Role]?.c ?? T.text2} />
+          }
+        </div>
+        <span className="mono" style={{ width: 46, textAlign: 'right', fontSize: 11.5, color: T.text2 }}>
+          {user.problem_count}
+        </span>
+        <div style={{ width: 110, display: 'flex', justifyContent: 'flex-end' }}>
+          <BanToggle userId={user.id} isBanned={user.is_banned} isSelf={user.id === selfId} />
+        </div>
       </div>
-      <div style={{ width: 130 }}>
-        <Pill value={user.squad_id ?? ''} options={squadOptions} onChange={(v) => updateSquad({ userId: user.id, squadId: v || null })} />
-      </div>
-      <div style={{ width: 150 }}>
-        {roleLocked
-          ? <span style={{ fontFamily: T.fD, fontSize: 11.5, fontWeight: 500, color: ROLE_META[user.role as Role]?.c ?? T.text2, background: T.surface3, border: `1px solid ${T.border}`, borderRadius: 7, padding: '4px 9px', opacity: 0.7, display: 'inline-block' }}>
-              {ROLE_META[user.role as Role]?.label ?? user.role}
-            </span>
-          : <Pill value={user.role} options={roleOptions} onChange={(v) => updateRole({ userId: user.id, role: v })} color={ROLE_META[user.role as Role]?.c ?? T.text2} />
-        }
-      </div>
-      <span className="mono" style={{ width: 46, textAlign: 'right', fontSize: 11.5, color: T.text2 }}>
-        {user.problem_count}
-      </span>
-      <div style={{ width: 110, display: 'flex', justifyContent: 'flex-end' }}>
-        <BanToggle userId={user.id} isBanned={user.is_banned} isSelf={user.id === selfId} />
-      </div>
+      {squadPickerBanner}
     </div>
   );
 }
@@ -380,11 +416,17 @@ function InvitationsTab({ isMobile }: { isMobile: boolean }) {
 
 // ── Squads tab ────────────────────────────────────────────────────────────
 function SquadsTab({ isMobile }: { isMobile: boolean }) {
-  const { data: squads = [], isLoading } = useSquads();
-  const { mutateAsync, isPending } = useCreateSquad();
-  const [name, setName] = useState('');
-  const [error, setError] = useState('');
-  const [created, setCreated] = useState<string | null>(null);
+  const { data: squads = [], isLoading }     = useSquads();
+  const { mutateAsync, isPending }           = useCreateSquad();
+  const { mutateAsync: renameSquad }         = useUpdateSquadName();
+  const { mutateAsync: deleteSquad }         = useDeleteSquad();
+  const [name, setName]                      = useState('');
+  const [error, setError]                    = useState('');
+  const [created, setCreated]                = useState<string | null>(null);
+  const [editingId, setEditingId]            = useState<string | null>(null);
+  const [editingName, setEditingName]        = useState('');
+  const [confirmDeleteId, setConfirmDeleteId]= useState<string | null>(null);
+  const [actionError, setActionError]        = useState('');
 
   async function handleCreate() {
     if (!name.trim()) return;
@@ -396,6 +438,29 @@ function SquadsTab({ isMobile }: { isMobile: boolean }) {
     } catch (e: unknown) {
       const msg = (e as { response?: { data?: { error?: string } } })?.response?.data?.error;
       setError(msg ?? 'Failed to create squad.');
+    }
+  }
+
+  async function handleRename(squadId: string) {
+    if (!editingName.trim()) return;
+    setActionError('');
+    try {
+      await renameSquad({ squadId, name: editingName.trim() });
+      setEditingId(null);
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { error?: string } } })?.response?.data?.error;
+      setActionError(msg ?? 'Failed to rename squad.');
+    }
+  }
+
+  async function handleDelete(squadId: string) {
+    setActionError('');
+    try {
+      await deleteSquad(squadId);
+      setConfirmDeleteId(null);
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { error?: string } } })?.response?.data?.error;
+      setActionError(msg ?? 'Failed to delete squad.');
     }
   }
 
@@ -435,6 +500,11 @@ function SquadsTab({ isMobile }: { isMobile: boolean }) {
         <h3 style={{ margin: '0 0 14px', fontFamily: T.fD, fontSize: 15, fontWeight: 600, color: T.text }}>
           All squads ({squads.length})
         </h3>
+        {actionError && (
+          <div style={{ marginBottom: 10, padding: '10px 13px', borderRadius: 9, background: 'rgba(242,101,79,0.10)', border: '1px solid rgba(242,101,79,0.3)', fontFamily: T.fB, fontSize: 12.5, color: T.loss }}>
+            {actionError}
+          </div>
+        )}
         <Card pad={0} style={{ overflow: 'hidden' }}>
           {isLoading && [1,2,3].map((i) => (
             <div key={i} style={{ padding: '14px 18px', borderTop: i > 1 ? `1px solid ${T.borderSoft}` : 'none', display: 'flex', gap: 10, alignItems: 'center' }}>
@@ -448,12 +518,52 @@ function SquadsTab({ isMobile }: { isMobile: boolean }) {
             </div>
           )}
           {squads.map((s, i) => (
-            <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 18px', borderTop: i ? `1px solid ${T.borderSoft}` : 'none' }}>
-              <div style={{ width: 30, height: 30, borderRadius: 8, background: T.accentGhost, border: `1px solid ${T.accentLine}`, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
-                <Icon name="profile" size={14} style={{ color: T.accent }} />
-              </div>
-              <span style={{ fontFamily: T.fD, fontSize: 13.5, fontWeight: 500, color: T.text, flex: 1 }}>{s.name}</span>
-              <span className="mono" style={{ fontSize: 10.5, color: T.text3 }}>{s.id.slice(0, 8)}…</span>
+            <div key={s.id} style={{ borderTop: i ? `1px solid ${T.borderSoft}` : 'none' }}>
+              {/* Normal row */}
+              {editingId !== s.id && confirmDeleteId !== s.id && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 18px' }}>
+                  <div style={{ width: 30, height: 30, borderRadius: 8, background: T.accentGhost, border: `1px solid ${T.accentLine}`, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                    <Icon name="profile" size={14} style={{ color: T.accent }} />
+                  </div>
+                  <span style={{ fontFamily: T.fD, fontSize: 13.5, fontWeight: 500, color: T.text, flex: 1 }}>{s.name}</span>
+                  <span className="mono" style={{ fontSize: 10.5, color: T.text3 }}>{s.id.slice(0, 8)}…</span>
+                  <Btn kind="ghost" size="sm" onClick={() => { setEditingId(s.id); setEditingName(s.name); setActionError(''); }}>
+                    Rename
+                  </Btn>
+                  <Btn kind="ghost" size="sm" onClick={() => { setConfirmDeleteId(s.id); setActionError(''); }}>
+                    Delete
+                  </Btn>
+                </div>
+              )}
+
+              {/* Inline rename */}
+              {editingId === s.id && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 18px', background: T.surface2 }}>
+                  <input
+                    autoFocus
+                    value={editingName}
+                    onChange={(e) => setEditingName(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleRename(s.id); if (e.key === 'Escape') setEditingId(null); }}
+                    style={{ flex: 1, fontFamily: T.fB, fontSize: 13.5, color: T.text, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 7, padding: '6px 10px', outline: 'none' }}
+                  />
+                  <Btn kind="primary" size="sm" disabled={!editingName.trim()} onClick={() => handleRename(s.id)}>Save</Btn>
+                  <Btn kind="ghost" size="sm" onClick={() => setEditingId(null)}>Cancel</Btn>
+                </div>
+              )}
+
+              {/* Delete confirmation */}
+              {confirmDeleteId === s.id && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 18px', background: 'rgba(242,101,79,0.06)', flexWrap: 'wrap' }}>
+                  <Icon name="ban" size={14} style={{ color: T.loss, flexShrink: 0 }} />
+                  <span style={{ fontFamily: T.fB, fontSize: 12.5, color: T.text2, flex: 1 }}>
+                    Delete <strong style={{ color: T.text }}>{s.name}</strong>? Members will be unassigned.
+                  </span>
+                  <Btn kind="ghost" size="sm" onClick={() => handleDelete(s.id)} style={{ color: T.loss, borderColor: 'rgba(242,101,79,0.4)' }}>
+                    Yes, delete
+                  </Btn>
+                  <Btn kind="ghost" size="sm" onClick={() => setConfirmDeleteId(null)}>Cancel</Btn>
+                </div>
+              )}
             </div>
           ))}
         </Card>

@@ -48,12 +48,13 @@ func (h *AdminHandler) SetRole(c echo.Context) error {
 	callerRole := RoleFromContext(c)
 	targetID   := c.Param("userID")
 	var body struct {
-		Role string `json:"role"`
+		Role    string  `json:"role"`
+		SquadID *string `json:"squad_id"`
 	}
 	if err := c.Bind(&body); err != nil || body.Role == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "role is required")
 	}
-	if err := h.adminUsers.SetRole(c.Request().Context(), callerID, callerRole, targetID, domain.Role(body.Role)); err != nil {
+	if err := h.adminUsers.SetRole(c.Request().Context(), callerID, callerRole, targetID, domain.Role(body.Role), body.SquadID); err != nil {
 		return echo.NewHTTPError(http.StatusForbidden, err.Error())
 	}
 	return c.JSON(http.StatusOK, map[string]string{"status": "updated"})
@@ -111,6 +112,29 @@ func (h *AdminHandler) ListSquads(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to fetch squads")
 	}
 	return c.JSON(http.StatusOK, list)
+}
+
+func (h *AdminHandler) UpdateSquad(c echo.Context) error {
+	squadID := c.Param("squadID")
+	var body struct {
+		Name string `json:"name"`
+	}
+	if err := c.Bind(&body); err != nil || strings.TrimSpace(body.Name) == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "name is required")
+	}
+	squad, err := h.adminUsers.UpdateSquad(c.Request().Context(), squadID, strings.TrimSpace(body.Name))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, squad)
+}
+
+func (h *AdminHandler) DeleteSquad(c echo.Context) error {
+	squadID := c.Param("squadID")
+	if err := h.adminUsers.DeleteSquad(c.Request().Context(), squadID); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, map[string]string{"status": "deleted"})
 }
 
 func (h *AdminHandler) CreateInvitation(c echo.Context) error {

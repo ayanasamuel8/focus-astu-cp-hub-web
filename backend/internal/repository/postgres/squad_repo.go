@@ -33,6 +33,28 @@ func (r *SquadRepo) GetByID(ctx context.Context, id string) (*domain.Squad, erro
 	return s, err
 }
 
+func (r *SquadRepo) Update(ctx context.Context, s *domain.Squad) (*domain.Squad, error) {
+	err := r.db.QueryRow(ctx,
+		`UPDATE squads SET name=$2 WHERE id=$1 RETURNING id, name, created_at`,
+		s.ID, s.Name,
+	).Scan(&s.ID, &s.Name, &s.CreatedAt)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, fmt.Errorf("squad not found")
+	}
+	return s, err
+}
+
+func (r *SquadRepo) Delete(ctx context.Context, id string) error {
+	tag, err := r.db.Exec(ctx, `DELETE FROM squads WHERE id=$1`, id)
+	if err != nil {
+		return err
+	}
+	if tag.RowsAffected() == 0 {
+		return fmt.Errorf("squad not found")
+	}
+	return nil
+}
+
 func (r *SquadRepo) ListAll(ctx context.Context) ([]*domain.Squad, error) {
 	rows, err := r.db.Query(ctx, `SELECT id, name, created_at FROM squads ORDER BY created_at`)
 	if err != nil {
