@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"focus-astu-hub/internal/domain"
@@ -313,6 +314,102 @@ func (uc *InvitationUseCase) sendViaResend(ctx context.Context, toEmail, inviteU
 }
 
 func (uc *InvitationUseCase) SiteURL() string { return uc.siteURL }
+
+// CreateOrConfirmSupabaseUser creates a confirmed Supabase auth user for the
+// given email/password. If the user already exists (e.g. from a previous
+// invite attempt), it updates their password and marks their email confirmed.
+func (uc *InvitationUseCase) CreateOrConfirmSupabaseUser(ctx context.Context, email, password string) error {
+	if uc.supabaseURL == "" || uc.supabaseServiceRoleKey == "" {
+		return fmt.Errorf("supabase credentials not configured")
+	}
+	if err := uc.supabaseAdminCreateUser(ctx, email, password); err == nil {
+		return nil
+	}
+	userID, err := uc.supabaseFindUserByEmail(ctx, email)
+	if err != nil {
+		return fmt.Errorf("user already exists but could not be located: %w", err)
+	}
+	return uc.supabaseAdminUpdateUser(ctx, userID, password)
+}
+
+func (uc *InvitationUseCase) supabaseAdminCreateUser(ctx context.Context, email, password string) error {
+	body, _ := json.Marshal(map[string]any{
+		"email":         email,
+		"password":      password,
+		"email_confirm": true,
+	})
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost,
+		uc.supabaseURL+"/auth/v1/admin/users", bytes.NewReader(body))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("apikey", uc.supabaseServiceRoleKey)
+	req.Header.Set("Authorization", "Bearer "+uc.supabaseServiceRoleKey)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 300 {
+		return fmt.Errorf("create user returned %d", resp.StatusCode)
+	}
+	return nil
+}
+
+func (uc *InvitationUseCase) supabaseFindUserByEmail(ctx context.Context, email string) (string, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet,
+		uc.supabaseURL+"/auth/v1/admin/users?filter="+email, nil)
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("apikey", uc.supabaseServiceRoleKey)
+	req.Header.Set("Authorization", "Bearer "+uc.supabaseServiceRoleKey)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	var result struct {
+		Users []struct {
+			ID    string `json:"id"`
+			Email string `json:"email"`
+		} `json:"users"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return "", err
+	}
+	for _, u := range result.Users {
+		if strings.EqualFold(u.Email, email) {
+			return u.ID, nil
+		}
+	}
+	return "", fmt.Errorf("user not found")
+}
+
+func (uc *InvitationUseCase) supabaseAdminUpdateUser(ctx context.Context, userID, password string) error {
+	body, _ := json.Marshal(map[string]any{
+		"password":      password,
+		"email_confirm": true,
+	})
+	req, err := http.NewRequestWithContext(ctx, http.MethodPut,
+		uc.supabaseURL+"/auth/v1/admin/users/"+userID, bytes.NewReader(body))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("apikey", uc.supabaseServiceRoleKey)
+	req.Header.Set("Authorization", "Bearer "+uc.supabaseServiceRoleKey)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 300 {
+		return fmt.Errorf("update user returned %d", resp.StatusCode)
+	}
+	return nil
+}
 
 func (uc *InvitationUseCase) supabaseAdminInvite(ctx context.Context, email, redirectTo string) error {
 	body, _ := json.Marshal(map[string]any{

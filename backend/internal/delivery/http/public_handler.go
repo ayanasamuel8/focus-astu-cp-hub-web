@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -85,6 +86,30 @@ func (h *PublicHandler) ValidateInvite(c echo.Context) error {
 		"token":      inv.Token,
 		"expires_at": inv.ExpiresAt,
 	})
+}
+
+// SignupViaInvite validates the token, creates a confirmed Supabase user
+// (bypassing email verification), and marks the token as used.
+// The frontend then calls supabase.auth.signInWithPassword() to get a session.
+func (h *PublicHandler) SignupViaInvite(c echo.Context) error {
+	var body struct {
+		Token    string `json:"token"`
+		Password string `json:"password"`
+	}
+	if err := c.Bind(&body); err != nil || body.Token == "" || len(body.Password) < 8 {
+		return echo.NewHTTPError(http.StatusBadRequest, "token and password (min 8 chars) are required")
+	}
+	inv, err := h.invitations.Validate(c.Request().Context(), body.Token)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusGone, err.Error())
+	}
+	if err := h.invitations.CreateOrConfirmSupabaseUser(c.Request().Context(), inv.Email, body.Password); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	if err := h.invitations.MarkUsed(c.Request().Context(), body.Token); err != nil {
+		log.Printf("mark invite used for %s: %v", inv.Email, err)
+	}
+	return c.JSON(http.StatusOK, map[string]string{"email": inv.Email})
 }
 
 func (h *PublicHandler) UseInvite(c echo.Context) error {

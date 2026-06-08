@@ -47,17 +47,20 @@ export default function InvitePage() {
     setLoading(true);
     setError('');
 
-    // If Supabase already set a session from the invite hash, the user exists
-    // in auth — just set their password. Otherwise register fresh.
-    const { data: { session } } = await supabase.auth.getSession();
-    const { error: err } = session
-      ? await supabase.auth.updateUser({ password })
-      : await supabase.auth.signUp({ email: inviteEmail, password });
+    // Backend creates a confirmed Supabase user (skips email verification).
+    // Works for both brand-new and previously-invited users.
+    try {
+      await api.post('/api/invite/signup', { token, password });
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { error?: string } } })?.response?.data?.error;
+      setError(msg ?? 'Failed to create account. The invite link may have expired.');
+      setLoading(false);
+      return;
+    }
 
-    if (err) { setError(err.message); setLoading(false); return; }
-
-    // Mark token as used so it can't be replayed
-    try { await api.post('/api/invite/use', { token }); } catch { /* best-effort */ }
+    // Now sign in with the confirmed credentials
+    const { error: signInErr } = await supabase.auth.signInWithPassword({ email: inviteEmail, password });
+    if (signInErr) { setError(signInErr.message); setLoading(false); return; }
 
     navigate('/complete-profile');
   }
