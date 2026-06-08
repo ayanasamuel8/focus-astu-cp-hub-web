@@ -3,6 +3,9 @@ contact_links:
   - name: Testing Guide
     url: https://ayanasamuel8.github.io/focus-astu-cp-hub-web/testing/
     about: Read the testing guide before filing an issue
+  - name: Contributing Guide
+    url: https://github.com/ayanasamuel8/focus-astu-cp-hub-web/blob/main/CONTRIBUTING.md
+    about: How to contribute — fork, branch, PR workflow
   - name: Telegram Group
     url: https://t.me/focusastu
     about: Quick questions? Ask in Telegram first
