@@ -14,6 +14,7 @@ Thank you for your interest in contributing! This guide covers everything you ne
 - [Commit Messages](#commit-messages)
 - [Code Standards](#code-standards)
 - [Pull Request Guidelines](#pull-request-guidelines)
+- [PR Size and Stacked PRs](#pr-size-and-stacked-prs)
 - [Review Process](#review-process)
 - [Reporting Bugs](#reporting-bugs)
 - [Requesting Features](#requesting-features)
@@ -233,9 +234,9 @@ docs: add extension setup screenshots
 
 ### General
 
-- One concern per PR — avoid mixing unrelated changes
+- **One logical change per PR** — if a PR touches unrelated things, split it
 - Do not add comments that restate what the code does; only comment the *why* when it is non-obvious
-- Keep PRs reasonably sized; large PRs take longer to review
+- Keep PRs small — a reviewer should be able to fully understand a PR in one sitting (aim for under ~400 lines changed; see [PR size](#pr-size-and-stacked-prs) below)
 
 ---
 
@@ -247,6 +248,93 @@ docs: add extension setup screenshots
 - Mark the PR as **Draft** if it is not ready for review
 - Do not force-push after a review has started — add new commits instead
 - Keep the PR branch up to date with `main` before requesting a final review
+
+---
+
+## PR Size and Stacked PRs
+
+Small, focused PRs get reviewed faster, get better feedback, and are easier to revert if something goes wrong. We take this seriously.
+
+### The rules
+
+| Situation | What to do |
+|-----------|-----------|
+| One logical change, small diff | Single PR into `main` |
+| One logical change, large diff | Split into a stack (see below) |
+| Multiple logical changes | One PR per change — stacked if they depend on each other, independent if they don't |
+
+> **Rough size guide:** under ~400 lines changed is easy to review. 400–800 lines is acceptable if it cannot be split. Over 800 lines — split it, no exceptions.
+
+### What counts as "one logical change"
+
+A logical change is a single, coherent reason to update the code. Examples of things that should be **separate PRs**:
+
+- Adding a migration vs. adding the backend handler vs. adding the frontend UI (for a new feature, split across at least two PRs: backend first, then frontend)
+- A refactor and a bug fix in the same area — even if they touch the same file
+- Two independent features that happen to be worked on together
+
+### Stacked PRs
+
+When one change depends on another (e.g. the frontend needs the backend to land first), use a **stack**:
+
+```
+main
+ └── feat/username-backend        ← PR 1: migration + API endpoints
+      └── feat/username-frontend  ← PR 2: UI, targets PR 1's branch (not main)
+           └── feat/username-url  ← PR 3: route changes, targets PR 2's branch
+```
+
+**How to create a stack:**
+
+```bash
+# Start from main
+git checkout main && git pull upstream main
+
+# First layer
+git checkout -b feat/username-backend
+# ... make changes ...
+git push origin feat/username-backend
+# Open PR: feat/username-backend → main
+
+# Second layer — branch off the first, not main
+git checkout -b feat/username-frontend feat/username-backend
+# ... make changes ...
+git push origin feat/username-frontend
+# Open PR: feat/username-frontend → feat/username-backend
+# Title it "[2/3] feat: username frontend"
+```
+
+**Updating a stack after review feedback:**
+
+```bash
+# Fix PR 1 (feat/username-backend), then rebase PR 2 onto it
+git checkout feat/username-frontend
+git rebase feat/username-backend
+git push --force-with-lease origin feat/username-frontend
+# Repeat for deeper layers
+```
+
+**When the base PR merges into main**, update the next PR's base in the GitHub UI from the merged branch to `main`, then rebase locally:
+
+```bash
+git checkout feat/username-frontend
+git rebase main
+git push --force-with-lease origin feat/username-frontend
+```
+
+### PR title format for stacks
+
+Prefix with the position so reviewers can see the order at a glance:
+
+```
+[1/3] feat: username — database migration and API endpoints
+[2/3] feat: username — frontend onboarding and settings UI
+[3/3] feat: username — profile URL migration and redirects
+```
+
+### What if I am not sure whether to split?
+
+If you are asking yourself whether to split, split. A PR that turns out to be too small costs nothing. A PR that is too large delays everyone.
 
 ---
 
