@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { T } from '../../lib/tokens';
 import { api } from '../../lib/api';
 import { AuthShell, Field } from './AuthShell';
@@ -27,6 +27,7 @@ const EMPTY: FormState = {
 
 export default function CompleteProfilePage() {
   const [form, setForm]     = useState<FormState>(EMPTY);
+  const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError]   = useState('');
   const navigate = useNavigate();
@@ -38,7 +39,8 @@ export default function CompleteProfilePage() {
   const canSubmit =
     form.full_name.trim().length > 0 &&
     form.telegram_handle.trim().length > 0 &&
-    form.codeforces_handle.trim().length > 0;
+    form.codeforces_handle.trim().length > 0 &&
+    agreed;
 
   async function handleSubmit() {
     if (!canSubmit) return;
@@ -130,6 +132,21 @@ export default function CompleteProfilePage() {
           {error}
         </div>
       )}
+
+      <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 20, cursor: 'pointer' }}>
+        <input
+          type="checkbox"
+          checked={agreed}
+          onChange={(e) => setAgreed(e.target.checked)}
+          style={{ marginTop: 2, accentColor: T.accent, width: 16, height: 16, flexShrink: 0, cursor: 'pointer' }}
+        />
+        <span style={{ fontFamily: T.fB, fontSize: 13, color: T.text2, lineHeight: 1.6 }}>
+          I have read and agree to the{' '}
+          <Link to="/terms" target="_blank" style={{ color: T.accentText, textDecoration: 'none' }}>Terms of Service</Link>
+          {' '}and{' '}
+          <Link to="/privacy" target="_blank" style={{ color: T.accentText, textDecoration: 'none' }}>Privacy Policy</Link>.
+        </span>
+      </label>
 
       <Btn
         kind="primary" full size="lg" iconR="arrow"

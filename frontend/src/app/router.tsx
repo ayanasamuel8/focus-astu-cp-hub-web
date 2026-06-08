@@ -7,6 +7,8 @@ import { Icon } from '../components/ui/Icon';
 import { Btn } from '../components/ui/Btn';
 
 import LandingPage from '../features/landing/LandingPage';
+import PrivacyPage from '../features/legal/PrivacyPage';
+import TermsPage from '../features/legal/TermsPage';
 import LoginPage from '../features/auth/LoginPage';
 import SignupPage from '../features/auth/SignupPage';
 import InvitePage from '../features/auth/InvitePage';
@@ -101,6 +103,8 @@ const router = createBrowserRouter([
     children: [
       { path: '/', element: <LandingPage /> },
       { path: '/announcements', element: <AnnouncementsPage /> },
+      { path: '/privacy', element: <PrivacyPage /> },
+      { path: '/terms', element: <TermsPage /> },
     ],
   },
 

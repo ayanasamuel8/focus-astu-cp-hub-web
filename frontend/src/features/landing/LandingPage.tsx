@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { T } from '../../lib/tokens';
 import { LandingNavbar } from '../../components/layout/LandingNavbar';
 import { Logo } from '../../components/ui/Logo';
@@ -278,9 +278,13 @@ function LandingFooter() {
       <span style={{ fontFamily: T.fB, fontSize: 12.5, color: T.text3 }}>
         Focus ASTU Competitive Programming Community · Adama, Ethiopia
       </span>
-      <span style={{ marginLeft: isMobile ? 0 : 'auto', fontFamily: T.fM, fontSize: 11, color: T.text3 }}>
-        Invite-only · {new Date().getFullYear()}
-      </span>
+      <div style={{ marginLeft: isMobile ? 0 : 'auto', display: 'flex', alignItems: 'center', gap: 16 }}>
+        <Link to="/privacy" style={{ fontFamily: T.fM, fontSize: 11, color: T.text3, textDecoration: 'none' }}>Privacy</Link>
+        <Link to="/terms" style={{ fontFamily: T.fM, fontSize: 11, color: T.text3, textDecoration: 'none' }}>Terms</Link>
+        <span style={{ fontFamily: T.fM, fontSize: 11, color: T.text3 }}>
+          Invite-only · {new Date().getFullYear()}
+        </span>
+      </div>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { T } from '../../lib/tokens';
 import { supabase } from '../../lib/supabase';
 import { api } from '../../lib/api';
@@ -102,7 +102,13 @@ export default function SignupPage() {
         {loading ? 'Creating…' : 'Create account'}
       </Btn>
 
-      <div style={{ marginTop: 18, fontFamily: T.fB, fontSize: 12, color: T.text3, textAlign: 'center', lineHeight: 1.5 }}>
+      <div style={{ marginTop: 14, fontFamily: T.fB, fontSize: 12, color: T.text3, textAlign: 'center', lineHeight: 1.6 }}>
+        By creating an account you agree to our{' '}
+        <Link to="/terms" style={{ color: T.accentText, textDecoration: 'none' }}>Terms of Service</Link>
+        {' '}and{' '}
+        <Link to="/privacy" style={{ color: T.accentText, textDecoration: 'none' }}>Privacy Policy</Link>.
+      </div>
+      <div style={{ marginTop: 10, fontFamily: T.fB, fontSize: 12, color: T.text3, textAlign: 'center', lineHeight: 1.5 }}>
         New accounts start as <span style={{ color: T.text2 }}>Community</span> until an admin assigns a squad.
       </div>
     </AuthShell>
