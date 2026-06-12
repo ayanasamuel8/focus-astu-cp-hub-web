@@ -1,6 +1,6 @@
 'use strict';
 
-const dot        = document.getElementById('dot');
+const dot = document.getElementById('dot');
 const statusText = document.getElementById('status-text');
 const portalInput = document.getElementById('portal-url');
 const apiKeyInput = document.getElementById('api-key');
