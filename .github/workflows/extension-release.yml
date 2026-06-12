@@ -65,8 +65,7 @@ jobs:
           retention-days: 30
 
       # ── Chrome Web Store publish ──────────────────────────────────────────
-      # Runs on every push to main that touches extension/, every published
-      # release, or a manual dispatch with publish=true.
+      # Uses direct curl calls instead of a third-party action for transparency.
       # Required repository secrets:
       #   CHROME_EXTENSION_ID, CHROME_CLIENT_ID,
       #   CHROME_CLIENT_SECRET, CHROME_REFRESH_TOKEN
@@ -75,10 +74,51 @@ jobs:
           (github.event_name == 'push') ||
           (github.event_name == 'release') ||
           (github.event_name == 'workflow_dispatch' && inputs.publish == true)
-        uses: mnao305/chrome-extension-upload@v5.0.0
-        with:
-          file-path: focus-astu-cp-hub-extension.zip
-          extension-id: ${{ secrets.CHROME_EXTENSION_ID }}
-          client-id: ${{ secrets.CHROME_CLIENT_ID }}
-          client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
-          refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
+        env:
+          EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+          CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+        run: |
+          # 1. Get access token
+          ACCESS_TOKEN=$(curl -s -X POST https://oauth2.googleapis.com/token \
+            -d client_id="$CLIENT_ID" \
+            -d client_secret="$CLIENT_SECRET" \
+            -d refresh_token="$REFRESH_TOKEN" \
+            -d grant_type=refresh_token \
+            | jq -r '.access_token')
+
+          if [ "$ACCESS_TOKEN" = "null" ] || [ -z "$ACCESS_TOKEN" ]; then
+            echo "Failed to get access token"
+            exit 1
+          fi
+          echo "Access token obtained"
+
+          # 2. Upload new version
+          UPLOAD_RESPONSE=$(curl -s -X PUT \
+            "https://www.googleapis.com/upload/chromewebstore/v1.1/items/$EXTENSION_ID" \
+            -H "Authorization: Bearer $ACCESS_TOKEN" \
+            -H "x-goog-api-version: 2" \
+            -H "Content-Type: application/zip" \
+            --data-binary @focus-astu-cp-hub-extension.zip)
+
+          echo "Upload response: $UPLOAD_RESPONSE"
+
+          UPLOAD_STATE=$(echo "$UPLOAD_RESPONSE" | jq -r '.uploadState')
+          if [ "$UPLOAD_STATE" != "SUCCESS" ]; then
+            echo "Upload failed with state: $UPLOAD_STATE"
+            exit 1
+          fi
+          echo "Upload successful"
+
+          # 3. Publish
+          PUBLISH_RESPONSE=$(curl -s -X POST \
+            "https://www.googleapis.com/chromewebstore/v1.1/items/$EXTENSION_ID/publish" \
+            -H "Authorization: Bearer $ACCESS_TOKEN" \
+            -H "x-goog-api-version: 2" \
+            -H "Content-Length: 0")
+
+          echo "Publish response: $PUBLISH_RESPONSE"
+
+          STATUS=$(echo "$PUBLISH_RESPONSE" | jq -r '.status[]' 2>/dev/null || echo "$PUBLISH_RESPONSE" | jq -r '.status' 2>/dev/null)
+          echo "Publish status: $STATUS"
