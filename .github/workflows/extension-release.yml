@@ -1,6 +1,10 @@
 name: Package & Publish Extension
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'extension/**'
   release:
     types: [published]
   workflow_dispatch:
@@ -22,6 +26,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # On push to main, generate a monotonically-increasing version so Chrome
+      # accepts the upload (version must always be higher than the last).
+      # Format: 1.0.<workflow_run_number>  e.g. 1.0.12
+      # On a release or manual dispatch, use whatever is in manifest.json.
+      - name: Set version
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            VERSION="1.0.${{ github.run_number }}"
+            jq --arg v "$VERSION" '.version = $v' extension/manifest.json \
+              > /tmp/manifest.json
+            mv /tmp/manifest.json extension/manifest.json
+            echo "Bumped manifest version to $VERSION"
+          else
+            VERSION=$(jq -r '.version' extension/manifest.json)
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
       - name: Build zip
         run: |
           cd extension
@@ -35,21 +56,23 @@ jobs:
         with:
           files: focus-astu-cp-hub-extension.zip
 
-      - name: Upload as artifact (manual run)
-        if: github.event_name == 'workflow_dispatch'
+      - name: Upload as artifact
+        if: github.event_name != 'release'
         uses: actions/upload-artifact@v4
         with:
-          name: focus-astu-cp-hub-extension
+          name: focus-astu-cp-hub-extension-${{ env.VERSION }}
           path: focus-astu-cp-hub-extension.zip
-          retention-days: 7
+          retention-days: 30
 
       # ── Chrome Web Store publish ──────────────────────────────────────────
-      # Runs on every release, OR on manual dispatch with publish=true.
-      # Requires 4 repository secrets (see docs/extension/installation.md):
+      # Runs on every push to main that touches extension/, every published
+      # release, or a manual dispatch with publish=true.
+      # Required repository secrets:
       #   CHROME_EXTENSION_ID, CHROME_CLIENT_ID,
       #   CHROME_CLIENT_SECRET, CHROME_REFRESH_TOKEN
       - name: Publish to Chrome Web Store
         if: |
+          (github.event_name == 'push') ||
           (github.event_name == 'release') ||
           (github.event_name == 'workflow_dispatch' && inputs.publish == true)
         uses: mnao305/chrome-extension-upload@v5.0.0
