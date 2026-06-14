@@ -36,9 +36,9 @@ func (h *UserHandler) GetUser(c echo.Context) error {
 func (h *UserHandler) UpdateMe(c echo.Context) error {
 	userID := UserIDFromContext(c)
 	var body struct {
-		FullName         string  `json:"full_name"`
-		TelegramHandle   string  `json:"telegram_handle"`
-		CodeforcesHandle string  `json:"codeforces_handle"`
+		FullName         *string `json:"full_name"`
+		TelegramHandle   *string `json:"telegram_handle"`
+		CodeforcesHandle *string `json:"codeforces_handle"`
 		LeetCodeHandle   *string `json:"leetcode_handle"`
 		AtCoderHandle    *string `json:"atcoder_handle"`
 		LinkedInURL      *string `json:"linkedin_url"`
@@ -46,6 +46,9 @@ func (h *UserHandler) UpdateMe(c echo.Context) error {
 	}
 	if err := c.Bind(&body); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid request body")
+	}
+	if body.FullName != nil && *body.FullName == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "full_name cannot be empty")
 	}
 	u, err := h.users.UpdateProfile(c.Request().Context(), userID, usecase.UpdateProfileInput{
 		FullName:         body.FullName,

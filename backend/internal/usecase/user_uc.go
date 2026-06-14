@@ -67,9 +67,9 @@ func (uc *UserUseCase) CompleteProfile(ctx context.Context, userID string, input
 }
 
 type UpdateProfileInput struct {
-	FullName         string
-	TelegramHandle   string
-	CodeforcesHandle string
+	FullName         *string
+	TelegramHandle   *string
+	CodeforcesHandle *string
 	LeetCodeHandle   *string
 	AtCoderHandle    *string
 	LinkedInURL      *string
@@ -85,9 +85,15 @@ func (uc *UserUseCase) UpdateProfile(ctx context.Context, userID string, input U
 		return nil, fmt.Errorf("account is banned")
 	}
 
-	u.FullName = input.FullName
-	u.TelegramHandle = input.TelegramHandle
-	u.CodeforcesHandle = input.CodeforcesHandle
+	if input.FullName != nil {
+		u.FullName = *input.FullName
+	}
+	if input.TelegramHandle != nil {
+		u.TelegramHandle = *input.TelegramHandle
+	}
+	if input.CodeforcesHandle != nil {
+		u.CodeforcesHandle = *input.CodeforcesHandle
+	}
 	u.LeetCodeHandle = input.LeetCodeHandle
 	u.AtCoderHandle = input.AtCoderHandle
 	u.LinkedInURL = input.LinkedInURL

@@ -129,17 +129,16 @@ export function useActivityHeatmap(userId: string | undefined) {
 }
 
 // ── Update own profile ────────────────────────────────────────────────────
-export function useUpdateProfile() {
+export function useUpdateProfile(userId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload: Partial<{
-      full_name: string;
+    mutationFn: (payload: { full_name: string } & Partial<{
       bio: string; telegram_handle: string; linkedin_url: string;
       leetcode_handle: string; codeforces_handle: string; atcoder_handle: string;
     }>) => api.put('/api/users/me', payload),
-    onSuccess: (_data, _vars, _ctx) => {
-      qc.invalidateQueries({ queryKey: ['profile'] });
-      qc.invalidateQueries({ queryKey: ['profile-full'] });
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['profile', userId] });
+      qc.invalidateQueries({ queryKey: ['profile-full', userId] });
     },
   });
 }
