@@ -133,6 +133,7 @@ export function useUpdateProfile() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload: Partial<{
+      full_name: string;
       bio: string; telegram_handle: string; linkedin_url: string;
       leetcode_handle: string; codeforces_handle: string; atcoder_handle: string;
     }>) => api.put('/api/users/me', payload),

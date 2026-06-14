@@ -98,6 +98,7 @@ function HeatStrip({ userId }: { userId: string }) {
 
 // ── Edit profile modal ────────────────────────────────────────────────────
 function EditModal({ profile, onClose }: { profile: UserProfile; onClose: () => void }) {
+  const [fullName, setFullName]   = useState(profile.full_name ?? '');
   const [bio, setBio]             = useState(profile.bio ?? '');
   const [telegram, setTelegram]   = useState(profile.telegram_handle ?? '');
   const [linkedin, setLinkedin]   = useState(profile.linkedin_url ?? '');
@@ -111,8 +112,13 @@ function EditModal({ profile, onClose }: { profile: UserProfile; onClose: () => 
 
   async function handleSave() {
     setError('');
+    if (!fullName.trim()) {
+      setError('Full name cannot be empty.');
+      return;
+    }
     try {
       await mutateAsync({
+        full_name:         fullName.trim(),
         bio:               bio.trim() || undefined,
         telegram_handle:   telegram.trim().replace(/^@/, '') || undefined,
         linkedin_url:      linkedin.trim() || undefined,
@@ -152,6 +158,7 @@ function EditModal({ profile, onClose }: { profile: UserProfile; onClose: () => 
           <h2 style={{ fontFamily: T.fD, fontSize: 18, fontWeight: 600, color: T.text, margin: 0 }}>Edit profile</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: T.text3 }}><Icon name="ban" size={17} /></button>
         </div>
+        <ModalField label="Full name" value={fullName} onChange={setFullName} placeholder="Your full name" />
         <ModalField label="Bio" value={bio} onChange={setBio} placeholder="A short bio about yourself…" />
         <ModalField label="Telegram handle" value={telegram} onChange={setTelegram} mono placeholder="abel_t (no @)" />
         <ModalField label="LinkedIn URL" value={linkedin} onChange={setLinkedin} placeholder="linkedin.com/in/…" />
