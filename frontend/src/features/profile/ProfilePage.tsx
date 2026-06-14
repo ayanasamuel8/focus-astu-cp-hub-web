@@ -96,8 +96,25 @@ function HeatStrip({ userId }: { userId: string }) {
   );
 }
 
+// ── Modal field (hoisted to module scope to prevent DOM remount on every render) ──
+function ModalField({ label, value, onChange, mono, placeholder, autoComplete }: {
+  label: string; value: string; onChange: (v: string) => void; mono?: boolean; placeholder?: string; autoComplete?: string;
+}) {
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <div style={{ fontFamily: T.fD, fontSize: 12.5, fontWeight: 500, color: T.text2, marginBottom: 6 }}>{label}</div>
+      <input
+        value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
+        autoComplete={autoComplete}
+        style={{ width: '100%', background: T.surface2, border: `1px solid ${T.border}`, borderRadius: 9, padding: '10px 13px', outline: 'none', boxSizing: 'border-box', fontFamily: mono ? T.fM : T.fB, fontSize: 13.5, color: T.text }}
+      />
+    </div>
+  );
+}
+
 // ── Edit profile modal ────────────────────────────────────────────────────
 function EditModal({ profile, onClose }: { profile: UserProfile; onClose: () => void }) {
+  const [fullName, setFullName]   = useState(profile.full_name);
   const [bio, setBio]             = useState(profile.bio ?? '');
   const [telegram, setTelegram]   = useState(profile.telegram_handle ?? '');
   const [linkedin, setLinkedin]   = useState(profile.linkedin_url ?? '');
@@ -105,14 +122,20 @@ function EditModal({ profile, onClose }: { profile: UserProfile; onClose: () => 
   const [cf, setCf]               = useState(profile.codeforces_handle ?? '');
   const [ac, setAc]               = useState(profile.atcoder_handle ?? '');
   const [error, setError]         = useState('');
-  const { mutateAsync, isPending } = useUpdateProfile();
+  const { mutateAsync, isPending } = useUpdateProfile(profile.id);
   const w = useWindowWidth();
   const isMobile = w < BREAKPOINTS.mobile;
 
   async function handleSave() {
     setError('');
+    const trimmedName = fullName.trim();
+    if (!trimmedName) {
+      setError('Full name cannot be empty.');
+      return;
+    }
     try {
       await mutateAsync({
+        full_name:         trimmedName,
         bio:               bio.trim() || undefined,
         telegram_handle:   telegram.trim().replace(/^@/, '') || undefined,
         linkedin_url:      linkedin.trim() || undefined,
@@ -122,20 +145,6 @@ function EditModal({ profile, onClose }: { profile: UserProfile; onClose: () => 
       });
       onClose();
     } catch { setError('Failed to save — try again.'); }
-  }
-
-  function ModalField({ label, value, onChange, mono, placeholder }: {
-    label: string; value: string; onChange: (v: string) => void; mono?: boolean; placeholder?: string;
-  }) {
-    return (
-      <div style={{ marginBottom: 14 }}>
-        <div style={{ fontFamily: T.fD, fontSize: 12.5, fontWeight: 500, color: T.text2, marginBottom: 6 }}>{label}</div>
-        <input
-          value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
-          style={{ width: '100%', background: T.surface2, border: `1px solid ${T.border}`, borderRadius: 9, padding: '10px 13px', outline: 'none', boxSizing: 'border-box', fontFamily: mono ? T.fM : T.fB, fontSize: 13.5, color: T.text }}
-        />
-      </div>
-    );
   }
 
   return (
@@ -152,6 +161,7 @@ function EditModal({ profile, onClose }: { profile: UserProfile; onClose: () => 
           <h2 style={{ fontFamily: T.fD, fontSize: 18, fontWeight: 600, color: T.text, margin: 0 }}>Edit profile</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: T.text3 }}><Icon name="ban" size={17} /></button>
         </div>
+        <ModalField label="Full name" value={fullName} onChange={v => { setFullName(v); setError(''); }} placeholder="Your full name" autoComplete="name" />
         <ModalField label="Bio" value={bio} onChange={setBio} placeholder="A short bio about yourself…" />
         <ModalField label="Telegram handle" value={telegram} onChange={setTelegram} mono placeholder="abel_t (no @)" />
         <ModalField label="LinkedIn URL" value={linkedin} onChange={setLinkedin} placeholder="linkedin.com/in/…" />
