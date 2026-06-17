@@ -154,7 +154,22 @@ function TopicRow({ topic, open, onToggle, isLead, squadId, isMobile, onSubmit }
     return (
       <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, overflow: 'hidden' }}>
         {topic.problems.map((p, i) => (
-          <div key={p.problem_id} style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 11, padding: isMobile ? '10px 11px' : '9px 13px', borderTop: i ? `1px solid ${T.borderSoft}` : 'none' }}>
+          <div 
+            key={p.problem_id} 
+            tabIndex={0}
+            role="button"
+            aria-label={`Submit ${p.name}`}
+            onKeyDown={(e) => {
+              if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+              if (e.key === 'Enter' || e.key.toLowerCase() === 's') {
+                e.preventDefault();
+                onSubmit(p);
+              }
+            }}
+            onFocus={(e) => e.currentTarget.style.background = 'rgba(37,214,193,0.05)'}
+            onBlur={(e) => e.currentTarget.style.background = 'transparent'}
+            style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 11, padding: isMobile ? '10px 11px' : '9px 13px', borderTop: i ? `1px solid ${T.borderSoft}` : 'none', outlineOffset: -2, cursor: 'pointer' }}
+          >
             {p.solved
               ? <span style={{ width: 17, height: 17, borderRadius: 5, background: 'rgba(69,212,131,0.15)', display: 'grid', placeItems: 'center', flexShrink: 0 }}><Icon name="check" size={12} style={{ color: T.gain }} /></span>
               : <span style={{ width: 15, height: 15, borderRadius: 5, border: `1.5px solid ${T.border}`, flexShrink: 0 }} />}
