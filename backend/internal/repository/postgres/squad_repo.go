@@ -104,6 +104,32 @@ func (r *SquadRepo) GetTracks(ctx context.Context, squadID string) ([]*domain.Sq
 	return result, rows.Err()
 }
 
+func (r *SquadRepo) UpdateTrack(ctx context.Context, id, title string) (*domain.SquadTrack, error) {
+	t := &domain.SquadTrack{}
+	err := r.db.QueryRow(ctx, `
+		UPDATE squad_tracks
+		SET title = $2
+		WHERE id = $1
+		RETURNING id, squad_id, title, created_at`,
+		id, title,
+	).Scan(&t.ID, &t.SquadID, &t.Title, &t.CreatedAt)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, fmt.Errorf("track not found")
+	}
+	return t, err
+}
+
+func (r *SquadRepo) DeleteTrack(ctx context.Context, id string) error {
+	tag, err := r.db.Exec(ctx, `DELETE FROM squad_tracks WHERE id = $1`, id)
+	if err != nil {
+		return err
+	}
+	if tag.RowsAffected() == 0 {
+		return fmt.Errorf("track not found")
+	}
+	return nil
+}
+
 func (r *SquadRepo) GetTrackByID(ctx context.Context, trackID string) (*domain.SquadTrack, error) {
 	t := &domain.SquadTrack{}
 	err := r.db.QueryRow(ctx, `SELECT id, squad_id, title, created_at FROM squad_tracks WHERE id=$1`, trackID).
@@ -145,6 +171,32 @@ func (r *SquadRepo) GetTopics(ctx context.Context, trackID string) ([]*domain.Sq
 	return result, rows.Err()
 }
 
+func (r *SquadRepo) UpdateTopic(ctx context.Context, id, title string) (*domain.SquadTopic, error) {
+	t := &domain.SquadTopic{}
+	err := r.db.QueryRow(ctx, `
+		UPDATE squad_track_topics
+		SET title = $2
+		WHERE id = $1
+		RETURNING id, track_id, title, order_index, created_at`,
+		id, title,
+	).Scan(&t.ID, &t.TrackID, &t.Title, &t.OrderIndex, &t.CreatedAt)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, fmt.Errorf("topic not found")
+	}
+	return t, err
+}
+
+func (r *SquadRepo) DeleteTopic(ctx context.Context, id string) error {
+	tag, err := r.db.Exec(ctx, `DELETE FROM squad_track_topics WHERE id = $1`, id)
+	if err != nil {
+		return err
+	}
+	if tag.RowsAffected() == 0 {
+		return fmt.Errorf("topic not found")
+	}
+	return nil
+}
+
 func (r *SquadRepo) GetTopicByID(ctx context.Context, topicID string) (*domain.SquadTopic, error) {
 	t := &domain.SquadTopic{}
 	err := r.db.QueryRow(ctx, `SELECT id, track_id, title, order_index, created_at FROM squad_track_topics WHERE id=$1`, topicID).
@@ -162,6 +214,17 @@ func (r *SquadRepo) AssignProblem(ctx context.Context, topicID, problemID string
 		ON CONFLICT DO NOTHING`, topicID, problemID,
 	)
 	return err
+}
+
+func (r *SquadRepo) DeleteTopicProblem(ctx context.Context, topicID, problemID string) error {
+	tag, err := r.db.Exec(ctx, `DELETE FROM topic_problems WHERE topic_id = $1 AND problem_id = $2`, topicID, problemID)
+	if err != nil {
+		return err
+	}
+	if tag.RowsAffected() == 0 {
+		return fmt.Errorf("problem assignment not found")
+	}
+	return nil
 }
 
 func (r *SquadRepo) GetTopicProblems(ctx context.Context, topicID string) ([]*domain.TopicProblem, error) {

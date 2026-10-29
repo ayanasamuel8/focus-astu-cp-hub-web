@@ -14,7 +14,7 @@ import { useProblems } from '../problems/useProblemData';
 import { LogSolveModal } from '../problems/LogSolveModal';
 import type { Platform } from '../../lib/tokens';
 import {
-  useSquadCurriculum, useSquadRoster, useCreateTrack, useCreateTopic, useAssignProblem,
+  useSquadCurriculum, useSquadRoster, useCreateTrack, useUpdateTrack, useDeleteTrack, useCreateTopic, useAssignProblem,
   type Track, type Topic, type TopicProblem,
 } from './useSquadData';
 
@@ -150,68 +150,6 @@ function TopicRow({ topic, open, onToggle, isLead, squadId, isMobile, onSubmit }
   const total   = topic.problems.length;
   const complete = total > 0 && solved === total;
 
-  function ProblemList({ showSearch }: { showSearch: boolean }) {
-    return (
-      <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, overflow: 'hidden' }}>
-        {topic.problems.map((p, i) => (
-          <div key={p.problem_id} style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 11, padding: isMobile ? '10px 11px' : '9px 13px', borderTop: i ? `1px solid ${T.borderSoft}` : 'none' }}>
-            {p.solved
-              ? <span style={{ width: 17, height: 17, borderRadius: 5, background: 'rgba(69,212,131,0.15)', display: 'grid', placeItems: 'center', flexShrink: 0 }}><Icon name="check" size={12} style={{ color: T.gain }} /></span>
-              : <span style={{ width: 15, height: 15, borderRadius: 5, border: `1.5px solid ${T.border}`, flexShrink: 0 }} />}
-            <PlatformBadge p={p.platform as Platform} size="sm" />
-            {/* Problem name → external link */}
-            <a
-              href={p.external_link}
-              target="_blank"
-              rel="noreferrer"
-              style={{ fontFamily: T.fD, fontSize: isMobile ? 12.5 : 13, fontWeight: 500, color: p.solved ? T.text2 : T.text, flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textDecoration: 'none' }}
-              onMouseEnter={(e) => ((e.target as HTMLElement).style.textDecoration = 'underline')}
-              onMouseLeave={(e) => ((e.target as HTMLElement).style.textDecoration = 'none')}
-            >
-              {p.name}
-            </a>
-            {/* Submit button for unsolved */}
-            {!p.solved && (
-              <button
-                onClick={() => onSubmit(p)}
-                title="Log a solve"
-                style={{ display: 'flex', alignItems: 'center', gap: 5, padding: isMobile ? '4px 8px' : '4px 9px', borderRadius: 7, background: T.accentGhost, border: `1px solid ${T.accentLine}`, color: T.accentText, fontFamily: T.fD, fontSize: isMobile ? 11 : 11.5, fontWeight: 600, cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' }}
-              >
-                <Icon name="plus" size={11} />
-                {!isMobile && 'Submit'}
-              </button>
-            )}
-            {/* Editorial link */}
-            <Link
-              to={`/problems/${p.problem_id}/editorials`}
-              title="View editorials"
-              style={{ display: 'grid', placeItems: 'center', color: T.text3, flexShrink: 0 }}
-            >
-              <Icon name="book" size={14} style={{ color: T.text3 }} />
-            </Link>
-          </div>
-        ))}
-        {isLead && !showSearch && (
-          <div style={{ padding: '9px 13px', borderTop: `1px solid ${T.borderSoft}` }}>
-            <span
-              onClick={(e) => { e.stopPropagation(); setAddingProblem(true); }}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: T.fD, fontSize: 12, color: T.accentText, cursor: 'pointer' }}
-            >
-              <Icon name="plus" size={13} />Add problem
-            </span>
-          </div>
-        )}
-        {isLead && showSearch && (
-          <ProblemSearchDropdown
-            topicId={topic.id}
-            squadId={squadId}
-            onDone={() => setAddingProblem(false)}
-          />
-        )}
-      </div>
-    );
-  }
-
   return (
     <div style={{ borderTop: `1px solid ${T.borderSoft}` }}>
       <div
@@ -234,7 +172,63 @@ function TopicRow({ topic, open, onToggle, isLead, squadId, isMobile, onSubmit }
                 : 'No problems added yet.'}
             </div>
           ) : (
-            <ProblemList showSearch={addingProblem} />
+            <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, overflow: 'hidden' }}>
+              {topic.problems.map((p, i) => (
+                <div key={p.problem_id} style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 11, padding: isMobile ? '10px 11px' : '9px 13px', borderTop: i ? `1px solid ${T.borderSoft}` : 'none' }}>
+                  {p.solved
+                    ? <span style={{ width: 17, height: 17, borderRadius: 5, background: 'rgba(69,212,131,0.15)', display: 'grid', placeItems: 'center', flexShrink: 0 }}><Icon name="check" size={12} style={{ color: T.gain }} /></span>
+                    : <span style={{ width: 15, height: 15, borderRadius: 5, border: `1.5px solid ${T.border}`, flexShrink: 0 }} />}
+                  <PlatformBadge p={p.platform as Platform} size="sm" />
+                  {/* Problem name → external link */}
+                  <a
+                    href={p.external_link}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ fontFamily: T.fD, fontSize: isMobile ? 12.5 : 13, fontWeight: 500, color: p.solved ? T.text2 : T.text, flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textDecoration: 'none' }}
+                    onMouseEnter={(e) => ((e.target as HTMLElement).style.textDecoration = 'underline')}
+                    onMouseLeave={(e) => ((e.target as HTMLElement).style.textDecoration = 'none')}
+                  >
+                    {p.name}
+                  </a>
+                  {/* Submit button for unsolved */}
+                  {!p.solved && (
+                    <button
+                      onClick={() => onSubmit(p)}
+                      title="Log a solve"
+                      style={{ display: 'flex', alignItems: 'center', gap: 5, padding: isMobile ? '4px 8px' : '4px 9px', borderRadius: 7, background: T.accentGhost, border: `1px solid ${T.accentLine}`, color: T.accentText, fontFamily: T.fD, fontSize: isMobile ? 11 : 11.5, fontWeight: 600, cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' }}
+                    >
+                      <Icon name="plus" size={11} />
+                      {!isMobile && 'Submit'}
+                    </button>
+                  )}
+                  {/* Editorial link */}
+                  <Link
+                    to={`/problems/${p.problem_id}/editorials`}
+                    title="View editorials"
+                    style={{ display: 'grid', placeItems: 'center', color: T.text3, flexShrink: 0 }}
+                  >
+                    <Icon name="book" size={14} style={{ color: T.text3 }} />
+                  </Link>
+                </div>
+              ))}
+              {isLead && !addingProblem && (
+                <div style={{ padding: '9px 13px', borderTop: `1px solid ${T.borderSoft}` }}>
+                  <span
+                    onClick={(e) => { e.stopPropagation(); setAddingProblem(true); }}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: T.fD, fontSize: 12, color: T.accentText, cursor: 'pointer' }}
+                  >
+                    <Icon name="plus" size={13} />Add problem
+                  </span>
+                </div>
+              )}
+              {isLead && addingProblem && (
+                <ProblemSearchDropdown
+                  topicId={topic.id}
+                  squadId={squadId}
+                  onDone={() => setAddingProblem(false)}
+                />
+              )}
+            </div>
           )}
         </div>
       )}
@@ -251,8 +245,64 @@ function TrackCard({ track, isLead, squadId, isMobile, onSubmit }: {
   const [addingTopic, setAddingTopic] = useState(false);
   const { mutateAsync: createTopic }  = useCreateTopic(squadId);
 
+  // Rename track state
+  const [isEditing, setIsEditing]     = useState(false);
+  const [editTitle, setEditTitle]     = useState(track.title);
+  const [updateError, setUpdateError] = useState<string | null>(null);
+
+  // Delete track state
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleteError, setDeleteError]     = useState<string | null>(null);
+
+  const { mutateAsync: updateTrack, isPending: updatingTrack } = useUpdateTrack(squadId);
+  const { mutateAsync: deleteTrack, isPending: deletingTrack } = useDeleteTrack(squadId);
+
   const solvedTotal  = track.topics.reduce((a, t) => a + t.problems.filter((p) => p.solved).length, 0);
   const problemTotal = track.topics.reduce((a, t) => a + t.problems.length, 0);
+
+  function startEditing() {
+    setEditTitle(track.title);
+    setUpdateError(null);
+    setIsEditing(true);
+  }
+
+  function cancelEditing() {
+    setEditTitle(track.title);
+    setUpdateError(null);
+    setIsEditing(false);
+  }
+
+  async function handleSaveTitle() {
+    const trimmed = editTitle.trim();
+    if (!trimmed) return;
+    if (trimmed === track.title) {
+      setIsEditing(false);
+      return;
+    }
+    setUpdateError(null);
+    try {
+      await updateTrack({ trackId: track.id, title: trimmed });
+      setIsEditing(false);
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { error?: string; message?: string } } })?.response?.data?.message
+        ?? (e as { response?: { data?: { error?: string } } })?.response?.data?.error
+        ?? 'Failed to rename track — try again.';
+      setUpdateError(msg);
+    }
+  }
+
+  async function handleDeleteTrack() {
+    setDeleteError(null);
+    try {
+      await deleteTrack(track.id);
+      setConfirmDelete(false);
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { error?: string; message?: string } } })?.response?.data?.message
+        ?? (e as { response?: { data?: { error?: string } } })?.response?.data?.error
+        ?? 'Failed to delete track — try again.';
+      setDeleteError(msg);
+    }
+  }
 
   async function handleAddTopic(title: string) {
     await createTopic({ trackId: track.id, title });
@@ -260,21 +310,208 @@ function TrackCard({ track, isLead, squadId, isMobile, onSubmit }: {
   }
 
   return (
-    <Card pad={0} style={{ overflow: 'hidden' }}>
+    <Card pad={0} style={{ overflow: 'visible' }}>
       {/* Track header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 14, padding: isMobile ? '12px 14px' : '15px 18px', background: T.surface3, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 14, padding: isMobile ? '12px 14px' : '15px 18px', background: T.surface3, flexWrap: 'wrap', borderRadius: 'inherit' }}>
         <div style={{ width: 32, height: 32, borderRadius: 9, display: 'grid', placeItems: 'center', background: T.accentGhost, color: T.accent, flexShrink: 0 }}>
           <Icon name="book" size={16} />
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: T.fD, fontSize: isMobile ? 14 : 15, fontWeight: 600, color: T.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{track.title}</div>
+          {isEditing && isLead ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <input
+                autoFocus
+                disabled={updatingTrack}
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSaveTitle();
+                  if (e.key === 'Escape') cancelEditing();
+                }}
+                style={{
+                  background: T.surface2,
+                  border: `1px solid ${T.accentLine}`,
+                  borderRadius: 6,
+                  padding: '4px 8px',
+                  fontFamily: T.fD,
+                  fontSize: isMobile ? 13.5 : 14.5,
+                  fontWeight: 600,
+                  color: T.text,
+                  outline: 'none',
+                  flex: 1,
+                  minWidth: 120,
+                }}
+              />
+              <button
+                type="button"
+                disabled={updatingTrack || !editTitle.trim()}
+                onClick={handleSaveTitle}
+                title="Save track title"
+                style={{
+                  display: 'grid',
+                  placeItems: 'center',
+                  background: T.accent,
+                  color: '#04201d',
+                  border: 'none',
+                  borderRadius: 6,
+                  width: 28,
+                  height: 28,
+                  cursor: updatingTrack || !editTitle.trim() ? 'not-allowed' : 'pointer',
+                  opacity: updatingTrack || !editTitle.trim() ? 0.5 : 1,
+                  flexShrink: 0,
+                }}
+              >
+                <Icon name="check" size={14} />
+              </button>
+              <button
+                type="button"
+                disabled={updatingTrack}
+                onClick={cancelEditing}
+                title="Cancel"
+                style={{
+                  display: 'grid',
+                  placeItems: 'center',
+                  background: 'transparent',
+                  color: T.text3,
+                  border: `1px solid ${T.border}`,
+                  borderRadius: 6,
+                  width: 28,
+                  height: 28,
+                  cursor: updatingTrack ? 'not-allowed' : 'pointer',
+                  flexShrink: 0,
+                }}
+              >
+                <Icon name="x" size={14} />
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+              <div
+                onClick={isLead ? startEditing : undefined}
+                title={isLead ? 'Click to rename track' : undefined}
+                style={{
+                  fontFamily: T.fD,
+                  fontSize: isMobile ? 14 : 15,
+                  fontWeight: 600,
+                  color: T.text,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  cursor: isLead ? 'pointer' : 'default',
+                }}
+              >
+                {track.title}
+              </div>
+              {isLead && (
+                <button
+                  type="button"
+                  onClick={startEditing}
+                  title="Rename track"
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: T.text3,
+                    padding: 2,
+                    display: 'grid',
+                    placeItems: 'center',
+                    flexShrink: 0,
+                    borderRadius: 4,
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = T.accentText)}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = T.text3)}
+                >
+                  <Icon name="edit" size={13} />
+                </button>
+              )}
+            </div>
+          )}
           <div style={{ fontFamily: T.fM, fontSize: 11, color: T.text3, marginTop: 2 }}>{track.topics.length} topics</div>
+          {updateError && (
+            <div style={{ fontFamily: T.fB, fontSize: 11.5, color: T.loss, marginTop: 4 }}>
+              {updateError}
+            </div>
+          )}
         </div>
         {problemTotal > 0 && (
           <Progress done={solvedTotal} total={problemTotal} w={isMobile ? 70 : 100} color={solvedTotal > 0 ? T.accent : T.text3} />
         )}
         {isLead && (
-          <Btn kind="ghost" size="sm" icon="plus" onClick={() => setAddingTopic(true)}>Topic</Btn>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, position: 'relative' }}>
+            <Btn kind="ghost" size="sm" icon="plus" onClick={() => setAddingTopic(true)}>Topic</Btn>
+            <button
+              type="button"
+              disabled={deletingTrack || updatingTrack}
+              onClick={() => { setConfirmDelete(true); setDeleteError(null); }}
+              title="Delete track"
+              style={{
+                display: 'grid',
+                placeItems: 'center',
+                width: 30,
+                height: 30,
+                borderRadius: 8,
+                background: 'transparent',
+                border: `1px solid ${T.border}`,
+                color: T.loss,
+                cursor: deletingTrack || updatingTrack ? 'not-allowed' : 'pointer',
+                opacity: deletingTrack || updatingTrack ? 0.5 : 1,
+                transition: 'background .15s',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(242,101,79,0.12)')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+            >
+              <Icon name="trash" size={14} />
+            </button>
+
+            {/* Confirmation popover */}
+            {confirmDelete && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: 0,
+                  marginTop: 6,
+                  background: T.surface2,
+                  border: `1px solid ${T.border}`,
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+                  borderRadius: 10,
+                  padding: '12px 14px',
+                  zIndex: 20,
+                  minWidth: 240,
+                }}
+              >
+                <div style={{ fontFamily: T.fD, fontSize: 12.5, fontWeight: 600, color: T.text, marginBottom: 4 }}>
+                  Delete track and all its topics?
+                </div>
+                <div style={{ fontFamily: T.fB, fontSize: 11.5, color: T.text3, marginBottom: 10 }}>
+                  This action cannot be undone.
+                </div>
+                {deleteError && (
+                  <div style={{ fontFamily: T.fB, fontSize: 11.5, color: T.loss, marginBottom: 8 }}>
+                    {deleteError}
+                  </div>
+                )}
+                <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                  <Btn
+                    kind="ghost"
+                    size="sm"
+                    disabled={deletingTrack}
+                    onClick={() => { setConfirmDelete(false); setDeleteError(null); }}
+                  >
+                    Cancel
+                  </Btn>
+                  <Btn
+                    kind="danger"
+                    size="sm"
+                    disabled={deletingTrack}
+                    onClick={handleDeleteTrack}
+                  >
+                    {deletingTrack ? 'Deleting…' : 'Delete'}
+                  </Btn>
+                </div>
+              </div>
+            )}
+          </div>
         )}
       </div>
 

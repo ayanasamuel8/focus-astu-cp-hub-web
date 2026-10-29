@@ -14,15 +14,15 @@ type Server struct {
 func NewServer(
 	jwks *JWKSCache,
 	users domain.UserRepository,
-	public     *PublicHandler,
-	userH      *UserHandler,
-	submH      *SubmissionHandler,
-	problemH   *ProblemHandler,
-	contestH   *ContestHandler,
-	squadH     *SquadHandler,
+	public *PublicHandler,
+	userH *UserHandler,
+	submH *SubmissionHandler,
+	problemH *ProblemHandler,
+	contestH *ContestHandler,
+	squadH *SquadHandler,
 	editorialH *EditorialHandler,
-	annH       *AnnouncementHandler,
-	adminH     *AdminHandler,
+	annH *AnnouncementHandler,
+	adminH *AdminHandler,
 ) *Server {
 	e := echo.New()
 	e.HideBanner = true
@@ -87,8 +87,13 @@ func NewServer(
 	lead.GET("/problems/preview", problemH.Preview)
 	lead.POST("/problems", problemH.Create)
 	lead.POST("/squads/:squadID/tracks", squadH.CreateTrack)
+	lead.PATCH("/squads/:squadID/tracks/:trackID", squadH.UpdateTrack)
+	lead.DELETE("/squads/:squadID/tracks/:trackID", squadH.DeleteTrack)
 	lead.POST("/tracks/:trackID/topics", squadH.AddTopic)
+	lead.PATCH("/tracks/:trackID/topics/:topicID", squadH.UpdateTopic)
+	lead.DELETE("/tracks/:trackID/topics/:topicID", squadH.DeleteTopic)
 	lead.POST("/topics/:topicID/problems", squadH.AssignProblem)
+	lead.DELETE("/topics/:topicID/problems/:problemID", squadH.UnassignProblem)
 	lead.POST("/announcements", annH.PostSquad)
 	lead.POST("/squads/:squadID/contests/sync", contestH.SyncForSquad)
 

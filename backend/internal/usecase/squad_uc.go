@@ -23,6 +23,34 @@ func (uc *SquadUseCase) CreateTrack(ctx context.Context, callerSquadID, squadID,
 	return uc.squads.CreateTrack(ctx, &domain.SquadTrack{SquadID: squadID, Title: title})
 }
 
+func (uc *SquadUseCase) UpdateTrack(ctx context.Context, callerSquadID, squadID, trackID, title string) (*domain.SquadTrack, error) {
+	if callerSquadID != squadID {
+		return nil, fmt.Errorf("forbidden: squad mismatch")
+	}
+	track, err := uc.squads.GetTrackByID(ctx, trackID)
+	if err != nil {
+		return nil, err
+	}
+	if track.SquadID != callerSquadID {
+		return nil, fmt.Errorf("forbidden: track belongs to different squad")
+	}
+	return uc.squads.UpdateTrack(ctx, trackID, title)
+}
+
+func (uc *SquadUseCase) DeleteTrack(ctx context.Context, callerSquadID, squadID, trackID string) error {
+	if callerSquadID != squadID {
+		return fmt.Errorf("forbidden: squad mismatch")
+	}
+	track, err := uc.squads.GetTrackByID(ctx, trackID)
+	if err != nil {
+		return err
+	}
+	if track.SquadID != callerSquadID {
+		return fmt.Errorf("forbidden: track belongs to different squad")
+	}
+	return uc.squads.DeleteTrack(ctx, trackID)
+}
+
 func (uc *SquadUseCase) GetCurriculum(ctx context.Context, squadID string) ([]*domain.SquadTrack, error) {
 	tracks, err := uc.squads.GetTracks(ctx, squadID)
 	if err != nil {
@@ -63,6 +91,42 @@ func (uc *SquadUseCase) AddTopic(ctx context.Context, callerSquadID, trackID, ti
 	return uc.squads.CreateTopic(ctx, &domain.SquadTopic{TrackID: trackID, Title: title})
 }
 
+func (uc *SquadUseCase) UpdateTopic(ctx context.Context, callerSquadID, trackID, topicID, title string) (*domain.SquadTopic, error) {
+	track, err := uc.squads.GetTrackByID(ctx, trackID)
+	if err != nil {
+		return nil, err
+	}
+	if track.SquadID != callerSquadID {
+		return nil, fmt.Errorf("forbidden: track belongs to different squad")
+	}
+	topic, err := uc.squads.GetTopicByID(ctx, topicID)
+	if err != nil {
+		return nil, err
+	}
+	if topic.TrackID != trackID {
+		return nil, fmt.Errorf("forbidden: topic belongs to different track")
+	}
+	return uc.squads.UpdateTopic(ctx, topicID, title)
+}
+
+func (uc *SquadUseCase) DeleteTopic(ctx context.Context, callerSquadID, trackID, topicID string) error {
+	track, err := uc.squads.GetTrackByID(ctx, trackID)
+	if err != nil {
+		return err
+	}
+	if track.SquadID != callerSquadID {
+		return fmt.Errorf("forbidden: track belongs to different squad")
+	}
+	topic, err := uc.squads.GetTopicByID(ctx, topicID)
+	if err != nil {
+		return err
+	}
+	if topic.TrackID != trackID {
+		return fmt.Errorf("forbidden: topic belongs to different track")
+	}
+	return uc.squads.DeleteTopic(ctx, topicID)
+}
+
 func (uc *SquadUseCase) AssignProblem(ctx context.Context, callerSquadID, topicID, problemID string) error {
 	topic, err := uc.squads.GetTopicByID(ctx, topicID)
 	if err != nil {
@@ -80,6 +144,21 @@ func (uc *SquadUseCase) AssignProblem(ctx context.Context, callerSquadID, topicI
 		return fmt.Errorf("problem not found")
 	}
 	return uc.squads.AssignProblem(ctx, topicID, problemID)
+}
+
+func (uc *SquadUseCase) UnassignProblem(ctx context.Context, callerSquadID, topicID, problemID string) error {
+	topic, err := uc.squads.GetTopicByID(ctx, topicID)
+	if err != nil {
+		return err
+	}
+	track, err := uc.squads.GetTrackByID(ctx, topic.TrackID)
+	if err != nil {
+		return err
+	}
+	if track.SquadID != callerSquadID {
+		return fmt.Errorf("forbidden: topic belongs to different squad")
+	}
+	return uc.squads.DeleteTopicProblem(ctx, topicID, problemID)
 }
 
 func (uc *SquadUseCase) ListSquads(ctx context.Context) ([]*domain.Squad, error) {

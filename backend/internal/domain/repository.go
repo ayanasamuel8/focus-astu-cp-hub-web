@@ -50,9 +50,14 @@ type SquadRepository interface {
 	ListAll(ctx context.Context) ([]*Squad, error)
 	CreateTrack(ctx context.Context, t *SquadTrack) (*SquadTrack, error)
 	GetTracks(ctx context.Context, squadID string) ([]*SquadTrack, error)
+	UpdateTrack(ctx context.Context, id, title string) (*SquadTrack, error)
+	DeleteTrack(ctx context.Context, id string) error
 	CreateTopic(ctx context.Context, t *SquadTopic) (*SquadTopic, error)
 	GetTopics(ctx context.Context, trackID string) ([]*SquadTopic, error)
+	UpdateTopic(ctx context.Context, id, title string) (*SquadTopic, error)
+	DeleteTopic(ctx context.Context, id string) error
 	AssignProblem(ctx context.Context, topicID, problemID string) error
+	DeleteTopicProblem(ctx context.Context, topicID, problemID string) error
 	GetTopicProblems(ctx context.Context, topicID string) ([]*TopicProblem, error)
 	GetTopicByID(ctx context.Context, topicID string) (*SquadTopic, error)
 	GetTrackByID(ctx context.Context, trackID string) (*SquadTrack, error)

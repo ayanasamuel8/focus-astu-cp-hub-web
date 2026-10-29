@@ -139,6 +139,24 @@ export function useCreateTrack(squadId: string) {
   });
 }
 
+export function useUpdateTrack(squadId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ trackId, title }: { trackId: string; title: string }) =>
+      api.patch(`/api/squads/${squadId}/tracks/${trackId}`, { title }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['squad-curriculum', squadId] }),
+  });
+}
+
+export function useDeleteTrack(squadId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (trackId: string) =>
+      api.delete(`/api/squads/${squadId}/tracks/${trackId}`),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['squad-curriculum', squadId] }),
+  });
+}
+
 export function useCreateTopic(squadId: string) {
   const qc = useQueryClient();
   return useMutation({
